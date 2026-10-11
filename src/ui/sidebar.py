@@ -34,7 +34,8 @@ class Sidebar(QWidget):
         self._add_nav_group("PDF TOOLS")
         self.merge_btn = self._add_nav_item("Merge PDF", "tool_merge")
         self.compress_btn = self._add_nav_item("Compress PDF", "tool_compress")
-        self.convert_btn = self._add_nav_item("Image Conversion", "tool_convert")
+        self.convert_btn = self._add_nav_item("Images to PDF", "tool_convert")
+        self.pdf_images_btn = self._add_nav_item("PDF to Images", "tool_pdf_to_images")
         self.unlock_btn = self._add_nav_item("Unlock PDF", "tool_unlock")
         self.protect_btn = self._add_nav_item("Protect PDF", "tool_protect")
         self.remove_btn = self._add_nav_item("Remove Pages", "tool_remove")
@@ -52,7 +53,7 @@ class Sidebar(QWidget):
 
         self.buttons = [
             self.home_btn, self.all_tools_btn, self.recent_btn,
-            self.merge_btn, self.compress_btn, self.convert_btn,
+            self.merge_btn, self.compress_btn, self.convert_btn, self.pdf_images_btn,
             self.unlock_btn, self.protect_btn, self.remove_btn,
             self.reorder_btn, self.number_btn, self.about_btn
         ]

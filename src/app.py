@@ -8,7 +8,9 @@ from PySide6.QtWidgets import (
 from src.ui.pages.all_tools import AllToolsPage
 from src.ui.pages.add_page_numbers import AddPageNumbersPage
 from src.ui.pages.dashboard import DashboardPage
+from src.ui.pages.images_to_pdf import ImagesToPdfPage
 from src.ui.pages.merge_pdf import MergePDFPage
+from src.ui.pages.pdf_to_images import PdfToImagesPage
 from src.ui.pages.remove_pages import RemovePagesPage
 from src.ui.pages.reorder_pages import ReorderPagesPage
 from src.ui.sidebar import Sidebar
@@ -96,6 +98,8 @@ class PDFForgeApp(QMainWindow):
         self.remove_pages_page = RemovePagesPage()
         self.reorder_pages_page = ReorderPagesPage()
         self.add_page_numbers_page = AddPageNumbersPage()
+        self.images_to_pdf_page = ImagesToPdfPage()
+        self.pdf_to_images_page = PdfToImagesPage()
         self._register_page("home", self.dashboard)
         self._register_page("all_tools", self.all_tools)
         self._register_page("recent", InfoPage(
@@ -110,6 +114,10 @@ class PDFForgeApp(QMainWindow):
         for tool in TOOLS:
             if tool["key"] == "tool_merge":
                 page = self.merge_page
+            elif tool["key"] == "tool_convert":
+                page = self.images_to_pdf_page
+            elif tool["key"] == "tool_pdf_to_images":
+                page = self.pdf_to_images_page
             elif tool["key"] == "tool_remove":
                 page = self.remove_pages_page
             elif tool["key"] == "tool_reorder":

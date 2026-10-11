@@ -17,10 +17,17 @@ TOOLS = [
     },
     {
         "key": "tool_convert",
-        "title": "Image Conversion",
-        "description": "Convert supported images and PDF pages.",
-        "is_implemented": False,
+        "title": "Images to PDF",
+        "description": "Combine selected images into a PDF document.",
+        "is_implemented": True,
         "quick_access": True
+    },
+    {
+        "key": "tool_pdf_to_images",
+        "title": "PDF to Images",
+        "description": "Export PDF pages as PNG, JPEG, TIFF, or WebP images.",
+        "is_implemented": True,
+        "quick_access": False
     },
     {
         "key": "tool_unlock",

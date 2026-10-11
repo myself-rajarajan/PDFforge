@@ -4,7 +4,7 @@ PDFForge is a professional, offline-first native desktop PDF utility inspired by
 
 ## Phase 2 — Native Desktop GUI
 
-The current build provides a native PySide6 dashboard, local tool search, and navigation. Phase 3, Steps 1–4 add PDF merging, page removal, page reordering, and page numbering; the other PDF processing features remain planned.
+The current build provides a native PySide6 dashboard, local tool search, and navigation. Phase 3 adds PDF merging, page removal, page reordering, and page numbering. Phase 4 adds local image-to-PDF and PDF-to-image conversion; compression and password tools remain planned.
 
 ### Typography
 
@@ -15,10 +15,11 @@ The application configures its font centrally through `QApplication.setFont()`. 
 - **Remove PDF Pages**: Browse rendered page thumbnails and click pages to select them, or enter one-based page numbers/ranges. The tool previews which pages will be removed and retained, preserves remaining-page order, ignores duplicates, protects the original, and rejects removing every page.
 - **Reorder PDF Pages**: Browse rendered, numbered page thumbnails and drag them into a new order. Drop on the upper or lower half of a thumbnail to insert before or after it. The displayed order is saved to a new local PDF; source files are protected and existing destinations require confirmation.
 - **Add Page Numbers**: Add sequential numbers to every page in one of six top/bottom and left/center/right positions. Configure the starting number and font size; the tool preserves the source, validates page fit, and requires confirmation before replacing an existing destination.
+- **Images to PDF**: See thumbnail previews of selected JPG/JPEG, PNG, BMP, GIF, TIFF, or WebP files, then reorder or remove them before converting into one PDF. Pages preserve image proportions and EXIF orientation; transparency is flattened onto white.
+- **PDF to Images**: Preview the selected PDF's pages as thumbnails, then export them in order as PNG, JPEG, TIFF, or WebP at a selected DPI. Filenames are predictable (`page_001.png` etc.); progress is shown and replacing collisions requires confirmation.
 
 ## Features (Planned)
 - **Compress PDF**: Reduce PDF file size while preserving quality.
-- **Image Conversion**: Convert images to PDF and PDF pages to images.
 - **Unlock PDF**: Open password-protected PDFs (credentials required).
 - **Protect PDF**: Secure PDFs with passwords and encryption.
 
@@ -75,3 +76,4 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for the detailed development plan and cur
 - **Phase 3, Step 2 (Remove PDF Pages)**: Implemented and covered by automated tests; manual GUI review is still required.
 - **Phase 3, Step 3 (Reorder PDF Pages)**: Implemented and covered by automated tests; manual GUI review is still required.
 - **Phase 3, Step 4 (Add Page Numbers)**: Implemented and covered by automated tests; manual GUI review is still required.
+- **Phase 4 (Image Conversion)**: Images to PDF and PDF to Images are implemented and covered by automated tests; manual GUI review is still required.

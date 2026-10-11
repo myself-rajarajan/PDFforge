@@ -2,7 +2,7 @@
 
 ## Project Overview
 - **Project Name**: PDFForge
-- **Current Phase**: Phase 3, Step 4 — Add Page Numbers
+- **Current Phase**: Phase 4 — Image Conversion
 - **Status**: Completed
 
 ## Phase 1 Checklist
@@ -109,5 +109,17 @@
 - **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 70 passed. `git diff --check` passed (Git reported only expected CRLF normalization notices).
 - **Manual verification**: Not performed. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py` in Windows PowerShell. Open Add Page Numbers, choose a multi-page PDF, verify each of the six positions, try a custom starting number/font size, and save as a new file.
 - **Known limitations**: The page number is a standard Helvetica text overlay and is not configurable by font family/color. Very small pages reject font/margin settings that do not fit.
+- **Git**: Changes remain uncommitted and have not been pushed, pending review.
+- **Next**: Stop for review before implementing another feature.
+
+## Phase 4 — Image Conversion (11 October 2026)
+- **Status**: Images to PDF and PDF to Images implemented and covered by automated tests; manual GUI review remains outstanding.
+- **Images to PDF**: Select multiple local images and see their thumbnails with filenames/order, move items up or down, remove items, select an output PDF, and convert. Thumbnail decoding runs in background workers. PyMuPDF and Pillow create one uncropped proportional page per image; EXIF orientation is applied and transparency is flattened onto white. Conversion runs in a background worker.
+- **PDF to Images**: Select a local PDF and inspect its rendered page thumbnails, then choose PNG/JPEG/TIFF/WebP and 36–600 DPI, choose an output folder, and export predictable `page_001` names in page order. Thumbnail rendering runs in the background; a progress bar tracks page export. Existing output images require explicit confirmation; the export stages files and rolls back partial installs on errors.
+- **Safety**: Invalid or missing files, encrypted PDFs, invalid formats/resolutions, source/output aliases, output conflicts, and conversion errors are reported locally. No network services or new dependencies are used.
+- **Files**: Added `src/core/images_to_pdf.py`, `src/core/pdf_to_images.py`, `src/ui/pages/images_to_pdf.py`, `src/ui/pages/pdf_to_images.py`, and `tests/test_image_conversion.py`; updated app routing, sidebar, tool metadata, GUI tests, README, and this progress log.
+- **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 85 passed, including selected-image and PDF-page thumbnail tests. `git diff --check` passed (Git reported only expected CRLF normalization notices).
+- **Manual verification**: Not performed. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py`. Verify both conversion directions using multiple differently sized images/pages, reorder and remove image entries, compare the output page/image order, try PNG/JPEG and TIFF/WebP, change DPI, and confirm an existing output set before replacement.
+- **Known limitations**: Animated image formats use their first frame. Images to PDF currently uses a fixed 150 DPI output density. PDF output rendering exports every page; there is no page-range selection or cancellation control.
 - **Git**: Changes remain uncommitted and have not been pushed, pending review.
 - **Next**: Stop for review before implementing another feature.

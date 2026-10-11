@@ -61,12 +61,16 @@ def test_navigation_and_tool_pages(qapp):
     from src.app import PDFForgeApp
     from src.utils.constants import TOOLS
     window = PDFForgeApp()
-    assert len(TOOLS) == 8
+    assert len(TOOLS) == 9
     for key in ("all_tools", "recent", "about", *(tool["key"] for tool in TOOLS)):
         window.navigate(key)
         assert window.sidebar.buttons[[b.property("key") for b in window.sidebar.buttons].index(key)].property("active")
-    assert window.stack.count() == 12
+    assert window.stack.count() == 13
     assert window._pages["tool_merge"] is window.merge_page
+    assert window._pages["tool_convert"] is window.images_to_pdf_page
+    assert window._pages["tool_pdf_to_images"] is window.pdf_to_images_page
+    assert next(tool for tool in TOOLS if tool["key"] == "tool_convert")["is_implemented"]
+    assert next(tool for tool in TOOLS if tool["key"] == "tool_pdf_to_images")["is_implemented"]
     assert window._pages["tool_reorder"] is window.reorder_pages_page
     assert next(tool for tool in TOOLS if tool["key"] == "tool_reorder")["is_implemented"]
     assert window._pages["tool_numbers"] is window.add_page_numbers_page
@@ -105,6 +109,81 @@ def test_add_page_numbers_controls_have_expected_defaults(qapp):
     assert page.position_combo.currentData() == "bottom-center"
     assert page.starting_number.value() == 1
     assert page.font_size.value() == 12
+
+def test_images_to_pdf_file_list_order_and_removal(qapp):
+    from PySide6.QtCore import Qt
+    from PySide6.QtWidgets import QListWidgetItem
+    from src.ui.pages.images_to_pdf import ImagesToPdfPage
+    page = ImagesToPdfPage()
+    for path in ("first.png", "second.jpg", "third.webp"):
+        item = QListWidgetItem(path)
+        item.setData(Qt.ItemDataRole.UserRole, path)
+        page.file_list.addItem(item)
+    page.file_list.item(1).setSelected(True)
+    page.move_selected_up()
+    assert [page.file_list.item(index).text() for index in range(3)] == [
+        "second.jpg", "first.png", "third.webp",
+    ]
+    page.file_list.item(0).setSelected(True)
+    page.remove_selected()
+    assert [page.file_list.item(index).text() for index in range(2)] == [
+        "first.png", "third.webp",
+    ]
+
+def test_images_to_pdf_selected_image_has_visible_thumbnail(qapp, tmp_path):
+    from PIL import Image
+    from PySide6.QtWidgets import QListWidget
+    from src.ui.pages.images_to_pdf import ImagesToPdfPage
+    image_path = tmp_path / "thumbnail.png"
+    Image.new("RGB", (640, 320), (30, 140, 220)).save(image_path)
+    page = ImagesToPdfPage()
+    page.add_image_paths([str(image_path)])
+    worker = page._thumbnail_workers[str(image_path.resolve())]
+    assert worker.wait(10000)
+    qapp.processEvents()
+    item = page.file_list.item(0)
+    assert page.file_list.viewMode() == QListWidget.ViewMode.IconMode
+    assert item.text() == "thumbnail.png"
+    assert not item.icon().isNull()
+
+def test_pdf_preview_metadata_only_skips_thumbnail_rendering(qapp, tmp_path):
+    import fitz
+    from PySide6.QtTest import QSignalSpy
+    from src.ui.pdf_preview import PdfPreviewWorker
+    source = tmp_path / "metadata-only.pdf"
+    document = fitz.open()
+    document.new_page()
+    document.save(source)
+    document.close()
+    worker = PdfPreviewWorker(str(source), page_numbers=[])
+    loaded = QSignalSpy(worker.loaded)
+    thumbnails = QSignalSpy(worker.thumbnail_ready)
+    worker.start()
+    assert worker.wait(10000)
+    qapp.processEvents()
+    assert loaded.count() == 1
+    assert loaded.at(0)[1] == 1
+    assert thumbnails.count() == 0
+
+def test_pdf_to_images_page_shows_selected_pdf_pages(qapp, tmp_path):
+    import fitz
+    from src.ui.pages.pdf_to_images import PdfToImagesPage
+    source = tmp_path / "preview-pages.pdf"
+    document = fitz.open()
+    document.new_page(width=140, height=180)
+    document.new_page(width=180, height=140)
+    document.save(source)
+    document.close()
+
+    page = PdfToImagesPage()
+    page._load_preview(str(source))
+    worker = page._preview_worker
+    assert worker.wait(10000)
+    qapp.processEvents()
+
+    assert page.file_info.text() == "preview-pages.pdf — 2 pages"
+    assert [button.page_number for button in page.thumbnail_grid.buttons] == [1, 2]
+    assert all(not button.icon().isNull() for button in page.thumbnail_grid.buttons)
 
 def test_merge_page_can_reorder_and_remove_files(qapp):
     from PySide6.QtWidgets import QListWidgetItem

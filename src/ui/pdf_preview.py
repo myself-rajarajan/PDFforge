@@ -70,20 +70,31 @@ class PageThumbnailButton(QToolButton):
     page_toggled = Signal(int, bool)
     page_dropped = Signal(int, int, bool)
 
-    def __init__(self, page_number: int, *, draggable: bool = False) -> None:
+    def __init__(
+        self,
+        page_number: int,
+        *,
+        draggable: bool = False,
+        selectable: bool = True,
+        icon_size: QSize | None = None,
+        button_size: QSize | None = None,
+    ) -> None:
         super().__init__()
         self.page_number = page_number
         self.draggable = draggable
+        self.selectable = selectable
         self._drag_start: QPoint | None = None
         self.setAcceptDrops(draggable)
-        self.setCheckable(True)
+        self.setCheckable(selectable)
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-        self.setIconSize(QSize(150, 190))
-        self.setFixedSize(190, 245)
+        self.setIconSize(icon_size or QSize(150, 190))
+        self.setFixedSize(button_size or QSize(190, 245))
         self.setText(f"Page {page_number}")
-        self.setAccessibleName(f"Page {page_number}, select to remove")
+        self.setAccessibleName(
+            f"Page {page_number}, select to remove" if selectable else f"Page {page_number} preview"
+        )
         self.setToolTip(
-            f"Page {page_number}" if draggable else
+            f"Page {page_number}" if draggable or not selectable else
             f"Click to toggle page {page_number} for removal"
         )
         self.setStyleSheet(f"""
@@ -157,9 +168,19 @@ class ThumbnailGrid(QWidget):
     page_toggled = Signal(int, bool)
     page_dropped = Signal(int, int, bool)
 
-    def __init__(self, *, draggable: bool = False) -> None:
+    def __init__(
+        self,
+        *,
+        draggable: bool = False,
+        selectable: bool = True,
+        icon_size: QSize | None = None,
+        button_size: QSize | None = None,
+    ) -> None:
         super().__init__()
         self.draggable = draggable
+        self.selectable = selectable
+        self.icon_size = icon_size or QSize(150, 190)
+        self.button_size = button_size or QSize(190, 245)
         self._layout = QGridLayout(self)
         self._layout.setContentsMargins(8, 8, 8, 8)
         self._layout.setSpacing(14)
@@ -171,12 +192,18 @@ class ThumbnailGrid(QWidget):
         return self._buttons
 
     def add_page(self, page_number: int) -> PageThumbnailButton:
-        button = PageThumbnailButton(page_number, draggable=self.draggable)
+        button = PageThumbnailButton(
+            page_number,
+            draggable=self.draggable,
+            selectable=self.selectable,
+            icon_size=self.icon_size,
+            button_size=self.button_size,
+        )
         button.page_toggled.connect(self.page_toggled.emit)
         button.page_dropped.connect(self.page_dropped.emit)
         index = len(self._buttons)
         self._buttons.append(button)
-        columns = max(1, self.width() // 208)
+        columns = max(1, (self.width() - 16) // (self.button_size.width() + self._layout.spacing()))
         if columns != self._columns:
             self._reflow()
         else:
@@ -221,7 +248,7 @@ class ThumbnailGrid(QWidget):
         self._reflow()
 
     def _reflow(self, *, force: bool = False) -> None:
-        columns = max(1, self.width() // 208)
+        columns = max(1, (self.width() - 16) // (self.button_size.width() + self._layout.spacing()))
         if not force and columns == self._columns and self._layout.count() == len(self._buttons):
             return
         while self._layout.count():
