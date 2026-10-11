@@ -33,7 +33,7 @@ TOOLS = [
         "key": "tool_unlock",
         "title": "Unlock PDF",
         "description": "Open a protected PDF using an authorized password.",
-        "is_implemented": False,
+        "is_implemented": True,
         "quick_access": False
     },
     {

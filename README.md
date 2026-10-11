@@ -4,7 +4,7 @@ PDFForge is a professional, offline-first native desktop PDF utility inspired by
 
 ## Phase 2 — Native Desktop GUI
 
-The current build provides a native PySide6 dashboard, local tool search, and navigation. Phase 3 adds PDF merging, page removal, page reordering, and page numbering. Phase 4 adds local image-to-PDF and PDF-to-image conversion. Phase 5 begins with password protection for local PDFs.
+The current build provides a native PySide6 dashboard, local tool search, and navigation. Phase 3 adds PDF merging, page removal, page reordering, and page numbering. Phase 4 adds local image-to-PDF and PDF-to-image conversion. Phase 5 adds local PDF password protection and authorized unlocking.
 
 ### Typography
 
@@ -18,10 +18,10 @@ The application configures its font centrally through `QApplication.setFont()`. 
 - **Images to PDF**: See thumbnail previews of selected JPG/JPEG, PNG, BMP, GIF, TIFF, or WebP files, then reorder or remove them before converting into one PDF. Pages preserve image proportions and EXIF orientation; transparency is flattened onto white.
 - **PDF to Images**: Preview the selected PDF's pages as thumbnails, then export them in order as PNG, JPEG, TIFF, or WebP at a selected DPI. Filenames are predictable (`page_001.png` etc.); progress is shown and replacing collisions requires confirmation.
 - **Protect PDF**: Encrypt a local PDF with AES-256 after the user enters and confirms a non-empty password. It uses pypdf's AES-256 writer when its optional crypto backend is available and the already-installed PyMuPDF AES-256 writer otherwise. The input remains unchanged, already-encrypted documents are rejected, and the output runs in a background worker. Existing destinations require confirmation.
+- **Unlock PDF**: Remove encryption from a local PDF after verifying a password supplied by the user. It uses pypdf password verification and writing where supported, and the already-installed PyMuPDF backend for AES PDFs when pypdf's optional crypto backend is unavailable. The source is preserved and existing output destinations require confirmation.
 
 ## Features (Planned)
 - **Compress PDF**: Reduce PDF file size while preserving quality.
-- **Unlock PDF**: Open password-protected PDFs (credentials required).
 
 ## Technology Stack
 - **Python 3.12**
@@ -77,3 +77,5 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for the detailed development plan and cur
 - **Phase 3, Step 3 (Reorder PDF Pages)**: Implemented and covered by automated tests; manual GUI review is still required.
 - **Phase 3, Step 4 (Add Page Numbers)**: Implemented and covered by automated tests; manual GUI review is still required.
 - **Phase 4 (Image Conversion)**: Images to PDF and PDF to Images are implemented and covered by automated tests; manual GUI review is still required.
+- **Phase 5, Step 1 (Protect PDFs)**: Implemented and covered by automated tests; manual GUI review is still required.
+- **Phase 5, Step 2 (Unlock PDFs)**: Implemented and covered by automated tests; manual GUI review is still required.

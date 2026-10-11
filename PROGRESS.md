@@ -2,8 +2,8 @@
 
 ## Project Overview
 - **Project Name**: PDFForge
-- **Current Phase**: Phase 4 — Image Conversion
-- **Status**: Completed
+- **Current Phase**: Phase 5 — PDF Password Tools
+- **Status**: Step 1 and Step 2 implemented; manual review pending
 
 ## Phase 1 Checklist
 - [x] Inspect the repository and existing environment.
@@ -75,6 +75,17 @@
 - **Known limitations**: Large merges run in the background but have no progress percentage or cancellation control. Other PDF tools remain Coming Soon.
 - **Git**: Completed in commit `8a5411a`; no push.
 - **Next**: Stop for review before implementing another feature.
+
+## Phase 5, Step 2 — Unlock PDFs (11 October 2026)
+- **Status**: Implemented and covered by automated tests; manual GUI verification remains outstanding.
+- **GUI**: Added a native Unlock PDF page with local PDF selection, a masked password field, output selection, explicit confirmation before replacing an existing destination, and a background worker. The existing sidebar route is now active and the tool is marked implemented.
+- **Behavior**: Uses pypdf's `decrypt()` to verify the supplied password and write the decrypted pages when supported. If the installed pypdf AES handler is unavailable, it verifies the same supplied password through installed PyMuPDF and writes an unencrypted output. Incorrect passwords, unencrypted/missing/corrupt PDFs, unsupported encryption, invalid paths, and source overwrite attempts fail safely. Page order and content are retained as supported by the PDF libraries.
+- **Files**: Added `src/core/unlock_pdf.py`, `src/ui/pages/unlock_pdf.py`, and `tests/test_unlock_pdf.py`; updated app routing, tool metadata, GUI tests, README, and this progress log.
+- **Dependencies**: No dependencies added; reused pypdf 6.20.0, PyMuPDF, PySide6, and shared output validation.
+- **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 99 passed. `git diff --check` passed (Git may report line-ending normalization notices).
+- **Manual verification**: Not performed. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py`, open Unlock PDF, select a password-protected document, enter its authorized password, choose a different output filename, and verify the output opens without a password and has the same page count/order/content. Also try a wrong password, an unencrypted PDF, and confirming/rejecting replacement of an existing output.
+- **Known limitations**: pypdf AES processing requires its optional cryptography backend; this environment uses PyMuPDF for AES-protected files. Unknown passwords are never guessed or bypassed.
+- **Git**: Changes remain uncommitted and have not been pushed, pending review.
 
 ## Phase 5, Step 1 — Password-protect PDFs (11 October 2026)
 - **Status**: Implemented and covered by automated tests; manual GUI verification remains outstanding.

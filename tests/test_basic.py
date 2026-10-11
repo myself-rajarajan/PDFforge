@@ -77,6 +77,8 @@ def test_navigation_and_tool_pages(qapp):
     assert next(tool for tool in TOOLS if tool["key"] == "tool_numbers")["is_implemented"]
     assert window._pages["tool_protect"] is window.protect_pdf_page
     assert next(tool for tool in TOOLS if tool["key"] == "tool_protect")["is_implemented"]
+    assert window._pages["tool_unlock"] is window.unlock_pdf_page
+    assert next(tool for tool in TOOLS if tool["key"] == "tool_unlock")["is_implemented"]
     window.sidebar.merge_btn.click()
     assert window.stack.currentWidget() is window.merge_page
     window.sidebar.remove_btn.click()
@@ -88,6 +90,12 @@ def test_protect_page_masks_password_fields(qapp):
     page = ProtectPdfPage()
     assert page.password_input.echoMode() == QLineEdit.EchoMode.Password
     assert page.confirmation_input.echoMode() == QLineEdit.EchoMode.Password
+
+def test_unlock_page_masks_password_field(qapp):
+    from PySide6.QtWidgets import QLineEdit
+    from src.ui.pages.unlock_pdf import UnlockPdfPage
+    page = UnlockPdfPage()
+    assert page.password_input.echoMode() == QLineEdit.EchoMode.Password
 
 def test_reorder_thumbnail_drop_tracks_displayed_order(qapp):
     from src.ui.pages.reorder_pages import ReorderPagesPage
