@@ -76,6 +76,17 @@
 - **Git**: Completed in commit `8a5411a`; no push.
 - **Next**: Stop for review before implementing another feature.
 
+## Phase 5, Step 1 — Password-protect PDFs (11 October 2026)
+- **Status**: Implemented and covered by automated tests; manual GUI verification remains outstanding.
+- **GUI**: Added a native Protect PDF page with PDF selection, masked password and confirmation fields, output selection, existing-output confirmation, and background processing. Protect PDF is now registered in the existing navigation and marked implemented.
+- **Behavior**: Uses pypdf AES-256 encryption when its optional crypto backend is available, with the already-installed PyMuPDF AES-256 support as fallback. The service rejects empty passwords, missing/invalid/already-encrypted inputs, invalid destinations, and attempts to alias the source. It writes through a same-directory temporary file and preserves page order/content. Existing outputs are replaced only after explicit confirmation. Passwords are not logged or written to project documentation.
+- **Files**: Added `src/core/protect_pdf.py`, `src/ui/pages/protect_pdf.py`, and `tests/test_protect_pdf.py`; updated app routing, tool metadata, GUI routing tests, README, and this progress log.
+- **Dependencies**: No dependencies added; reused pypdf 6.20.0, PyMuPDF, and PySide6.
+- **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 92 passed. `git diff --check` passed (Git displayed only line-ending normalization notices).
+- **Manual verification**: Not performed. Run `.\.venv\Scripts\python.exe main.py`, open Protect PDF, select an unencrypted PDF, enter matching passwords, choose a new output path, then confirm the result opens with the correct password and rejects a wrong password. Also try mismatched/empty values and an already-encrypted input.
+- **Known limitations**: pypdf alone requires its optional cryptography backend for AES-256; this environment falls back to the installed PyMuPDF implementation. No password-recovery or decryption workflow is included.
+- **Git**: Changes remain uncommitted and have not been pushed, pending review.
+
 ## Phase 3, Step 3 — Reorder PDF Pages (11 October 2026)
 - **Status**: Implemented and automated tests pass; manual GUI inspection remains outstanding.
 - **GUI**: Replaced the Reorder Pages placeholder with a native page that opens a local PDF, renders numbered page thumbnails, supports drop-before/drop-after drag ordering, shows the current original-page sequence, and saves to a user-selected destination. Page processing runs in a background worker.

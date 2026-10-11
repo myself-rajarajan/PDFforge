@@ -11,6 +11,7 @@ from src.ui.pages.dashboard import DashboardPage
 from src.ui.pages.images_to_pdf import ImagesToPdfPage
 from src.ui.pages.merge_pdf import MergePDFPage
 from src.ui.pages.pdf_to_images import PdfToImagesPage
+from src.ui.pages.protect_pdf import ProtectPdfPage
 from src.ui.pages.remove_pages import RemovePagesPage
 from src.ui.pages.reorder_pages import ReorderPagesPage
 from src.ui.sidebar import Sidebar
@@ -100,6 +101,7 @@ class PDFForgeApp(QMainWindow):
         self.add_page_numbers_page = AddPageNumbersPage()
         self.images_to_pdf_page = ImagesToPdfPage()
         self.pdf_to_images_page = PdfToImagesPage()
+        self.protect_pdf_page = ProtectPdfPage()
         self._register_page("home", self.dashboard)
         self._register_page("all_tools", self.all_tools)
         self._register_page("recent", InfoPage(
@@ -124,6 +126,8 @@ class PDFForgeApp(QMainWindow):
                 page = self.reorder_pages_page
             elif tool["key"] == "tool_numbers":
                 page = self.add_page_numbers_page
+            elif tool["key"] == "tool_protect":
+                page = self.protect_pdf_page
             else:
                 page = InfoPage(tool["title"], tool["description"], "COMING SOON")
             self._register_page(tool["key"], page)

@@ -40,7 +40,7 @@ TOOLS = [
         "key": "tool_protect",
         "title": "Protect PDF",
         "description": "Add password protection to a PDF.",
-        "is_implemented": False,
+        "is_implemented": True,
         "quick_access": False
     },
     {
