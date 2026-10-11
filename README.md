@@ -4,14 +4,16 @@ PDFForge is a professional, offline-first native desktop PDF utility inspired by
 
 ## Phase 2 — Native Desktop GUI
 
-The current build provides a native PySide6 dashboard, local tool search, navigation, and clear placeholders for planned operations. PDF processing features are not implemented yet; no files are processed by this phase.
+The current build provides a native PySide6 dashboard, local tool search, navigation, and clear placeholders for tools that are still planned. Phase 3, Step 1 adds local PDF merging; the remaining PDF processing features are not implemented yet.
 
 ### Typography
 
 The application configures its font centrally through `QApplication.setFont()`. It prefers Google Sans when that font is installed or a licensed `resources/fonts/GoogleSans-Regular.ttf` is supplied; otherwise it falls back to Segoe UI, Arial, or the system default. Google Sans was not found in the local project or Windows font directories during this update, so no font file is bundled and Google Sans rendering is not confirmed. The source and PyInstaller resource lookup both resolve the optional font from `resources/fonts/` (PyInstaller builds must include that directory as data).
 
+## Implemented PDF Operation
+- **Merge PDFs**: Combine multiple local PDF files in a user-selected order. The tool validates inputs, protects source files from being overwritten, and asks before replacing an existing destination.
+
 ## Features (Planned)
-- **Merge PDFs**: Combine multiple PDF files into one.
 - **Compress PDF**: Reduce PDF file size while preserving quality.
 - **Image Conversion**: Convert images to PDF and PDF pages to images.
 - **Unlock PDF**: Open password-protected PDFs (credentials required).
@@ -68,3 +70,4 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for the detailed development plan and cur
 ### Progress Summary
 - **Phase 1 (Foundation)**: Complete.
 - **Phase 2 (Native Desktop GUI)**: Implemented; automated tests are documented in [PROGRESS.md](PROGRESS.md). Manual visual review is still required.
+- **Phase 3, Step 1 (Merge PDFs)**: Implemented and covered by automated tests; manual GUI review is still required.

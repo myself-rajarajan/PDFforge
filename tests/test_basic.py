@@ -66,6 +66,31 @@ def test_navigation_and_tool_pages(qapp):
         window.navigate(key)
         assert window.sidebar.buttons[[b.property("key") for b in window.sidebar.buttons].index(key)].property("active")
     assert window.stack.count() == 12
+    assert window._pages["tool_merge"] is window.merge_page
+    window.sidebar.merge_btn.click()
+    assert window.stack.currentWidget() is window.merge_page
+
+def test_merge_page_can_reorder_and_remove_files(qapp):
+    from PySide6.QtWidgets import QListWidgetItem
+    from src.ui.pages.merge_pdf import MergePDFPage
+    page = MergePDFPage()
+    for name in ("first.pdf", "second.pdf", "third.pdf"):
+        page.file_list.addItem(QListWidgetItem(name))
+    page.file_list.item(1).setSelected(True)
+    page.move_selected_down()
+    assert [page.file_list.item(i).text() for i in range(3)] == [
+        "first.pdf", "third.pdf", "second.pdf",
+    ]
+    page.file_list.item(2).setSelected(True)
+    page.move_selected_up()
+    assert [page.file_list.item(i).text() for i in range(3)] == [
+        "first.pdf", "second.pdf", "third.pdf",
+    ]
+    page.file_list.item(1).setSelected(True)
+    page.remove_selected()
+    assert [page.file_list.item(i).text() for i in range(page.file_list.count())] == [
+        "first.pdf", "third.pdf",
+    ]
 
 def test_search_filters_tool_cards(qapp):
     from src.ui.pages.all_tools import AllToolsPage

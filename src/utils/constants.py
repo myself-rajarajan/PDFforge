@@ -5,7 +5,7 @@ TOOLS = [
         "key": "tool_merge",
         "title": "Merge PDF",
         "description": "Combine multiple PDF documents into one.",
-        "is_implemented": False,
+        "is_implemented": True,
         "quick_access": True
     },
     {

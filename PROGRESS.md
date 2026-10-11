@@ -2,7 +2,7 @@
 
 ## Project Overview
 - **Project Name**: PDFForge
-- **Current Phase**: Phase 2 — Native Desktop GUI
+- **Current Phase**: Phase 3, Step 1 — Merge PDFs
 - **Status**: Completed
 
 ## Phase 1 Checklist
@@ -55,7 +55,7 @@
 - **Visual verification**: Not manually launched or inspected in this run. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py` in Windows PowerShell.
 - **Known issues**: PDF operations are intentionally placeholders. UI layout has not yet received manual visual review.
 - **Git**: Branch `main`; Phase 2 completed in commit `d438d6d`.
-- **Next**: Wait for approval before starting Phase 3 — Core PDF Operations.
+- **Next**: Phase 3, Step 1 — Merge PDFs (completed below).
 
 ## Typography Update (11 October 2026)
 - **Status**: Implemented and covered by automated tests.
@@ -63,3 +63,15 @@
 - **Availability and licensing**: No Google Sans font file was found in the project or Windows system/user font directories. No font was copied, downloaded, or bundled because a redistribution license was not verified. Google Sans rendering is not claimed.
 - **Packaging**: Font lookup supports the PyInstaller `_MEIPASS` extraction directory. A future bundled font must be included as PyInstaller data under `resources/fonts/`.
 - **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 9 passed. Font preference, fallback selection, missing-resource initialization, and existing navigation/search behavior pass. `git diff --check` passed.
+
+## Phase 3, Step 1 — Merge PDFs (11 October 2026)
+- **Status**: Implemented and automated tests pass; manual GUI inspection remains outstanding.
+- **GUI**: Replaced the Merge PDF placeholder with a native page for adding local PDFs, viewing and changing merge order, removing selected files, choosing an output path, and starting the merge. Processing runs in a `QThread`; success and failure are reported with dialogs.
+- **Merge behavior**: Reused the existing `pypdf` dependency. Inputs are read in order and merged locally. Invalid, missing, unreadable, and encrypted inputs fail with an explanatory error. Temporary output is written beside the destination and atomically installed. Existing destinations require explicit UI confirmation; input paths and aliases are protected from overwrite.
+- **Files**: Added `src/core/merge.py`, `src/ui/pages/merge_pdf.py`, and `tests/test_merge.py`; updated app routing, tool metadata, GUI tests, README, and this progress log.
+- **Dependencies**: No dependencies added.
+- **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 16 passed. `git diff --check` passed.
+- **Manual visual verification**: Not performed. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py` in Windows PowerShell and open Merge PDF from the sidebar or dashboard.
+- **Known limitations**: Large merges run in the background but have no progress percentage or cancellation control. Other PDF tools remain Coming Soon.
+- **Git**: Changes remain uncommitted and have not been pushed, pending review.
+- **Next**: Stop for review before implementing another feature.
