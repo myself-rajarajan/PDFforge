@@ -2,13 +2,15 @@
 
 from pathlib import Path
 
-from PySide6.QtCore import QThread, Signal, Qt
+from PySide6.QtCore import QThread, Signal, Qt, QSize
+from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
     QFileDialog, QHBoxLayout, QLabel, QLineEdit, QListWidget,
     QListWidgetItem, QMessageBox, QPushButton, QVBoxLayout, QWidget,
 )
 
 from src.core.merge import MergeError, merge_pdfs, validate_output_path
+from src.ui.pdf_preview import PdfPreviewWorker
 from src.ui.theme import Theme
 
 
@@ -56,6 +58,8 @@ class MergePDFPage(QWidget):
         self.file_list = QListWidget()
         self.file_list.setSelectionMode(QListWidget.SelectionMode.ExtendedSelection)
         self.file_list.setAccessibleName("PDF files in merge order")
+        self.file_list.setIconSize(QSize(130, 170))
+        self.file_list.setSpacing(8)
         self.file_list.setMinimumHeight(190)
         layout.addWidget(self.file_list, 1)
 
@@ -95,6 +99,7 @@ class MergePDFPage(QWidget):
         layout.addLayout(action_row)
 
         self._worker: MergeWorker | None = None
+        self._preview_workers: dict[str, PdfPreviewWorker] = {}
 
     def add_files(self) -> None:
         files, _ = QFileDialog.getOpenFileNames(
@@ -104,10 +109,45 @@ class MergePDFPage(QWidget):
         for file_path in files:
             normalized = str(Path(file_path).resolve())
             if normalized not in existing:
-                item = QListWidgetItem(normalized)
+                item = QListWidgetItem(f"Loading preview…  {Path(normalized).name}")
                 item.setData(Qt.ItemDataRole.UserRole, normalized)
+                item.setToolTip(normalized)
+                item.setSizeHint(QSize(360, 190))
                 self.file_list.addItem(item)
                 existing.add(normalized)
+                preview = PdfPreviewWorker(normalized, page_numbers=[1])
+                preview.loaded.connect(self._preview_loaded)
+                preview.thumbnail_ready.connect(self._preview_thumbnail_ready)
+                preview.failed.connect(self._preview_failed)
+                preview.finished.connect(lambda path=normalized: self._preview_finished(path))
+                self._preview_workers[normalized] = preview
+                preview.start()
+
+    def _find_file_item(self, path: str) -> QListWidgetItem | None:
+        for index in range(self.file_list.count()):
+            item = self.file_list.item(index)
+            if item.data(Qt.ItemDataRole.UserRole) == path:
+                return item
+        return None
+
+    def _preview_loaded(self, path: str, page_count: int) -> None:
+        item = self._find_file_item(path)
+        if item is not None:
+            item.setText(f"{Path(path).name}  •  {page_count} pages")
+
+    def _preview_thumbnail_ready(self, path: str, _page_number: int, image) -> None:
+        item = self._find_file_item(path)
+        if item is not None:
+            item.setIcon(QIcon(QPixmap.fromImage(image)))
+
+    def _preview_failed(self, path: str, message: str) -> None:
+        item = self._find_file_item(path)
+        if item is not None:
+            item.setText(f"{Path(path).name}  •  preview unavailable")
+            item.setToolTip(f"{path}\n{message}")
+
+    def _preview_finished(self, path: str) -> None:
+        self._preview_workers.pop(path, None)
 
     def remove_selected(self) -> None:
         for row in sorted((self.file_list.row(item) for item in self.file_list.selectedItems()), reverse=True):
@@ -132,7 +172,7 @@ class MergePDFPage(QWidget):
     def choose_output(self) -> None:
         suggested_name = "merged.pdf"
         if self.file_list.count():
-            first = Path(self.file_list.item(0).text())
+            first = Path(self.file_list.item(0).data(Qt.ItemDataRole.UserRole))
             suggested_name = str(first.with_name(f"{first.stem}_merged.pdf"))
         output, _ = QFileDialog.getSaveFileName(
             self, "Save merged PDF", suggested_name, "PDF documents (*.pdf)",
@@ -144,7 +184,7 @@ class MergePDFPage(QWidget):
             self.output_input.setText(str(Path(output).absolute()))
 
     def start_merge(self) -> None:
-        inputs = [self.file_list.item(i).text() for i in range(self.file_list.count())]
+        inputs = [str(self.file_list.item(i).data(Qt.ItemDataRole.UserRole)) for i in range(self.file_list.count())]
         if len(inputs) < 2:
             QMessageBox.warning(self, "Select PDFs", "Add at least two PDF files to merge.")
             return

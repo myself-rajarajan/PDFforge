@@ -40,7 +40,7 @@ TOOLS = [
         "key": "tool_remove",
         "title": "Remove Pages",
         "description": "Remove selected pages from a document.",
-        "is_implemented": False,
+        "is_implemented": True,
         "quick_access": True
     },
     {

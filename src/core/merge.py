@@ -6,48 +6,12 @@ from pathlib import Path
 import tempfile
 
 from pypdf import PdfReader, PdfWriter
+from src.core.pdf_output import PDFOperationError, validate_pdf_output_path
 
 
-class MergeError(Exception):
-    """An expected, user-correctable error while merging PDF documents."""
-
-
-def _same_path(first: Path, second: Path) -> bool:
-    """Compare paths including case normalization and existing file identities."""
-    try:
-        if first.exists() and second.exists() and os.path.samefile(first, second):
-            return True
-    except OSError:
-        pass
-    return os.path.normcase(str(first.resolve(strict=False))) == os.path.normcase(
-        str(second.resolve(strict=False))
-    )
-
-
-def validate_output_path(
-    output_path: str | os.PathLike[str],
-    input_paths: list[str | os.PathLike[str]],
-    *,
-    overwrite: bool = False,
-) -> Path:
-    """Validate destination shape and protect all source files from replacement."""
-    output = Path(output_path).expanduser()
-    if not str(output).strip() or not output.name:
-        raise MergeError("Choose a valid output filename and destination.")
-    output = output.absolute()
-    if output.suffix.casefold() != ".pdf":
-        raise MergeError("The output filename must end in .pdf.")
-    if not output.parent.exists() or not output.parent.is_dir():
-        raise MergeError("The output folder does not exist or is not a folder.")
-    if output.exists() and output.is_dir():
-        raise MergeError("The output path points to a folder. Choose a PDF filename.")
-    for input_path in input_paths:
-        source = Path(input_path).expanduser().absolute()
-        if _same_path(source, output):
-            raise MergeError("The output file cannot be one of the selected input PDFs.")
-    if output.exists() and not overwrite:
-        raise MergeError("The output file already exists. Confirm replacement to continue.")
-    return output
+# Keep the earlier names as aliases for existing Merge PDF callers.
+MergeError = PDFOperationError
+validate_output_path = validate_pdf_output_path
 
 
 def merge_pdfs(
@@ -60,7 +24,7 @@ def merge_pdfs(
     if not input_paths:
         raise MergeError("Select at least one PDF to merge.")
 
-    output = validate_output_path(output_path, input_paths, overwrite=overwrite)
+    output = validate_pdf_output_path(output_path, input_paths, overwrite=overwrite)
     sources = [Path(path).expanduser() for path in input_paths]
     for source in sources:
         if not source.exists():

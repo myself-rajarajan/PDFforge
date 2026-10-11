@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
 from src.ui.pages.all_tools import AllToolsPage
 from src.ui.pages.dashboard import DashboardPage
 from src.ui.pages.merge_pdf import MergePDFPage
+from src.ui.pages.remove_pages import RemovePagesPage
 from src.ui.sidebar import Sidebar
 from src.ui.theme import Theme
 from src.utils.constants import TOOLS
@@ -90,6 +91,7 @@ class PDFForgeApp(QMainWindow):
         self.dashboard = DashboardPage()
         self.all_tools = AllToolsPage()
         self.merge_page = MergePDFPage()
+        self.remove_pages_page = RemovePagesPage()
         self._register_page("home", self.dashboard)
         self._register_page("all_tools", self.all_tools)
         self._register_page("recent", InfoPage(
@@ -102,9 +104,12 @@ class PDFForgeApp(QMainWindow):
             "VERSION 0.1.0 • UNDER DEVELOPMENT",
         ))
         for tool in TOOLS:
-            page = self.merge_page if tool["key"] == "tool_merge" else InfoPage(
-                tool["title"], tool["description"], "COMING SOON",
-            )
+            if tool["key"] == "tool_merge":
+                page = self.merge_page
+            elif tool["key"] == "tool_remove":
+                page = self.remove_pages_page
+            else:
+                page = InfoPage(tool["title"], tool["description"], "COMING SOON")
             self._register_page(tool["key"], page)
 
         self.sidebar.nav_clicked.connect(self.navigate)

@@ -2,7 +2,7 @@
 
 ## Project Overview
 - **Project Name**: PDFForge
-- **Current Phase**: Phase 3, Step 1 — Merge PDFs
+- **Current Phase**: Phase 3, Step 2 — Remove PDF Pages
 - **Status**: Completed
 
 ## Phase 1 Checklist
@@ -66,12 +66,24 @@
 
 ## Phase 3, Step 1 — Merge PDFs (11 October 2026)
 - **Status**: Implemented and automated tests pass; manual GUI inspection remains outstanding.
-- **GUI**: Replaced the Merge PDF placeholder with a native page for adding local PDFs, viewing and changing merge order, removing selected files, choosing an output path, and starting the merge. Processing runs in a `QThread`; success and failure are reported with dialogs.
+- **GUI**: Replaced the Merge PDF placeholder with a native page for adding local PDFs, previewing each file's first page and total page count, viewing/changing merge order, removing selected files, choosing an output path, and starting the merge. Processing runs in a `QThread`; success and failure are reported with dialogs.
 - **Merge behavior**: Reused the existing `pypdf` dependency. Inputs are read in order and merged locally. Invalid, missing, unreadable, and encrypted inputs fail with an explanatory error. Temporary output is written beside the destination and atomically installed. Existing destinations require explicit UI confirmation; input paths and aliases are protected from overwrite.
 - **Files**: Added `src/core/merge.py`, `src/ui/pages/merge_pdf.py`, and `tests/test_merge.py`; updated app routing, tool metadata, GUI tests, README, and this progress log.
 - **Dependencies**: No dependencies added.
 - **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 16 passed. `git diff --check` passed.
 - **Manual visual verification**: Not performed. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py` in Windows PowerShell and open Merge PDF from the sidebar or dashboard.
 - **Known limitations**: Large merges run in the background but have no progress percentage or cancellation control. Other PDF tools remain Coming Soon.
+- **Git**: Completed in commit `8a5411a`; no push.
+- **Next**: Stop for review before implementing another feature.
+
+## Phase 3, Step 2 — Remove PDF Pages (11 October 2026)
+- **Status**: Implemented and automated tests pass; manual GUI inspection remains outstanding.
+- **GUI**: Added a native Remove PDF Pages page with a scrollable, responsive grid of rendered page thumbnails. Clicking a thumbnail toggles it for removal; the one-based number/range field stays synchronized and previews both removed and retained page numbers. The page also shows the filename/page count and output save picker. Loading, thumbnail rendering, and removal use background workers.
+- **Behavior**: Removes selected pages locally while preserving remaining page order. Duplicate page numbers/ranges are deduplicated. Malformed syntax, invalid bounds, encrypted/invalid PDFs, missing inputs, removal of every page, and output/input path conflicts are rejected with clear messages. Existing destinations require confirmation.
+- **Files**: Added `src/core/remove_pages.py`, `src/core/pdf_output.py`, `src/ui/pages/remove_pages.py`, `src/ui/pdf_preview.py`, and `tests/test_remove_pages.py`; updated app routing, tool metadata, merge thumbnails, GUI tests, README, and this progress log. The shared output validation was extracted while preserving the merge module's prior public aliases.
+- **Dependencies**: No dependencies added; reused `pypdf`.
+- **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 39 passed, including background PDF thumbnail rendering and click-to-select preview behavior. `git diff --check` passed.
+- **Manual visual verification**: Not performed. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py` in Windows PowerShell and open Remove Pages from the sidebar or dashboard.
+- **Known limitations**: Large PDFs have no progress percentage or cancellation control. Password-protected PDFs are rejected; PDFForge does not request or bypass passwords.
 - **Git**: Changes remain uncommitted and have not been pushed, pending review.
 - **Next**: Stop for review before implementing another feature.
