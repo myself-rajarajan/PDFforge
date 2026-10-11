@@ -1,6 +1,6 @@
 # ROADMAP
 
-## Phase 1 — Project Foundation and Git Setup [IN PROGRESS]
+## Phase 1 — Project Foundation and Git Setup [COMPLETED]
 - [x] Inspect the repository and existing environment.
 - [x] Set up or verify Git.
 - [x] Establish the project structure.
@@ -11,13 +11,14 @@
 - [ ] Run verification.
 - [ ] Make an initial local commit if verification succeeds.
 
-## Phase 2 — Native Desktop GUI
-- [ ] Build the main PDFForge application window using PySide6.
-- [ ] Design a clean, professional dashboard.
-- [ ] Add navigation or cards for the eight planned tools.
-- [ ] Add a consistent layout, icons where appropriate, and status/error messaging.
-- [ ] Establish reusable UI components.
-- [ ] Test application startup.
+## Phase 2 — Native Desktop GUI [IMPLEMENTED]
+- [x] Build the main PDFForge application window using PySide6.
+- [x] Create a dark dashboard with featured and quick access sections.
+- [x] Add navigation and placeholder pages for all eight planned tools.
+- [x] Add local search, recent files empty state, About page, and shared theme.
+- [x] Establish reusable UI components.
+- [x] Test navigation, search, page construction, and startup.
+- [ ] Manually inspect the window and resize behavior.
 
 ## Phase 3 — Core PDF Operations
 - [ ] Implement merging PDFs.

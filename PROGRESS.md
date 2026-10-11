@@ -44,3 +44,15 @@
 
 ## History
 - **2026-10-11**: Phase 1 initialized and completed.
+
+## Phase 2 — Native Desktop GUI (11 October 2026)
+- **Status**: Implemented; manual visual inspection remains outstanding.
+- **GUI**: Added a dark native PySide6 dashboard, shared theme, sidebar, featured panel, quick access and all-tool cards, toolbar, local/offline indicator, recent-files empty state, About page, and Coming Soon pages for all eight planned tools.
+- **Behavior**: Sidebar and cards navigate through a stacked page layout; selection follows the current page; toolbar search opens the tool directory and filters by tool name or description; Explore Tools opens All Tools.
+- **Files**: Updated `src/app.py`, UI modules under `src/ui/`, `src/utils/constants.py`, `tests/test_basic.py`, README, roadmap, and architecture notes.
+- **Dependencies**: No new dependencies.
+- **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 6 passed. `git diff --check` checked; `.venv` is ignored.
+- **Visual verification**: Not manually launched or inspected in this run. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py` in Windows PowerShell.
+- **Known issues**: PDF operations are intentionally placeholders. UI layout has not yet received manual visual review.
+- **Git**: Branch `main`; Phase 2 commit pending final review.
+- **Next**: Wait for approval before starting Phase 3 — Core PDF Operations.

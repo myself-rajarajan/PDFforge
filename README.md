@@ -2,6 +2,10 @@
 
 PDFForge is a professional, offline-first native desktop PDF utility inspired by the convenience and organization of iLovePDF. It provides a suite of tools for processing PDF files locally on your computer, ensuring privacy and security.
 
+## Phase 2 — Native Desktop GUI
+
+The current build provides a native PySide6 dashboard, local tool search, navigation, and clear placeholders for planned operations. PDF processing features are not implemented yet; no files are processed by this phase.
+
 ## Features (Planned)
 - **Merge PDFs**: Combine multiple PDF files into one.
 - **Compress PDF**: Reduce PDF file size while preserving quality.
@@ -45,8 +49,8 @@ python main.py
 ```
 
 ### Running Tests
-```bash
-python -m pytest
+```powershell
+python -m pytest -q
 ```
 
 ## Architecture
@@ -58,4 +62,5 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for the detailed development plan and cur
 ---
 
 ### Progress Summary
-- **Phase 1 (Foundation)**: Completed project initialization, directory structure, Git configuration, and minimal application entry point.
+- **Phase 1 (Foundation)**: Complete.
+- **Phase 2 (Native Desktop GUI)**: Implemented; automated tests are documented in [PROGRESS.md](PROGRESS.md). Manual visual review is still required.

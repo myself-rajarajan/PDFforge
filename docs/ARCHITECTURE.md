@@ -12,8 +12,14 @@ The entry point of the application. It handles high-level startup logic and init
 Initializes the main application instance and the primary window.
 
 ### `src/ui/`
-Contains all UI-related components, including layouts, widgets, and styles.
-- `main_window.py`: The primary dashboard of the application.
+Contains native PySide6 UI components and the centralized `Theme` stylesheet.
+- `sidebar.py`: Navigation buttons and selected-page state.
+- `tool_card.py`: Reusable clickable tool card.
+- `pages/dashboard.py`: Home feature panel and quick access cards.
+- `pages/all_tools.py`: Tool directory and immediate name/description filter.
+- `src/app.py`: Main window, toolbar, stacked pages, and navigation wiring.
+
+`PDFForgeApp` owns a `QStackedWidget` and routes sidebar and card selections by stable page keys. Planned operations open explicit Coming Soon pages; the Recent Files page remains empty until real processing exists. The toolbar search filters the All Tools page without network access.
 
 ### `src/core/`
 Contains the business logic for PDF and image processing.
