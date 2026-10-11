@@ -69,6 +69,8 @@ def test_navigation_and_tool_pages(qapp):
     assert window._pages["tool_merge"] is window.merge_page
     assert window._pages["tool_reorder"] is window.reorder_pages_page
     assert next(tool for tool in TOOLS if tool["key"] == "tool_reorder")["is_implemented"]
+    assert window._pages["tool_numbers"] is window.add_page_numbers_page
+    assert next(tool for tool in TOOLS if tool["key"] == "tool_numbers")["is_implemented"]
     window.sidebar.merge_btn.click()
     assert window.stack.currentWidget() is window.merge_page
     window.sidebar.remove_btn.click()
@@ -93,6 +95,16 @@ def test_reorder_thumbnail_drop_tracks_displayed_order(qapp):
     page._page_moved(3, 2, True)
     assert page.page_order == [1, 2, 3]
     assert [button.page_number for button in page.thumbnail_grid.buttons] == [1, 2, 3]
+
+def test_add_page_numbers_controls_have_expected_defaults(qapp):
+    from src.core.add_page_numbers import PAGE_NUMBER_POSITIONS
+    from src.ui.pages.add_page_numbers import AddPageNumbersPage
+    page = AddPageNumbersPage()
+    assert page.position_combo.count() == 6
+    assert {page.position_combo.itemData(i) for i in range(6)} == set(PAGE_NUMBER_POSITIONS.values())
+    assert page.position_combo.currentData() == "bottom-center"
+    assert page.starting_number.value() == 1
+    assert page.font_size.value() == 12
 
 def test_merge_page_can_reorder_and_remove_files(qapp):
     from PySide6.QtWidgets import QListWidgetItem

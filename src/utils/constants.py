@@ -54,7 +54,7 @@ TOOLS = [
         "key": "tool_numbers",
         "title": "Add Page Numbers",
         "description": "Number PDF pages in your preferred position.",
-        "is_implemented": False,
+        "is_implemented": True,
         "quick_access": False
     }
 ]

@@ -2,7 +2,7 @@
 
 ## Project Overview
 - **Project Name**: PDFForge
-- **Current Phase**: Phase 3, Step 3 — Reorder PDF Pages
+- **Current Phase**: Phase 3, Step 4 — Add Page Numbers
 - **Status**: Completed
 
 ## Phase 1 Checklist
@@ -97,5 +97,17 @@
 - **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 39 passed, including background PDF thumbnail rendering and click-to-select preview behavior. `git diff --check` passed.
 - **Manual visual verification**: Not performed. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py` in Windows PowerShell and open Remove Pages from the sidebar or dashboard.
 - **Known limitations**: Large PDFs have no progress percentage or cancellation control. Password-protected PDFs are rejected; PDFForge does not request or bypass passwords.
+- **Git**: Changes remain uncommitted and have not been pushed, pending review.
+- **Next**: Stop for review before implementing another feature.
+
+## Phase 3, Step 4 — Add Page Numbers (11 October 2026)
+- **Status**: Implemented and automated tests pass; manual GUI verification remains outstanding.
+- **GUI**: Replaced the Add Page Numbers placeholder with a native page for selecting a local PDF, choosing one of six positions, setting the starting number and font size, selecting an output path, and starting the operation. Input validation and document processing run in background workers.
+- **Behavior**: Uses existing PyMuPDF to add sequential numbers while retaining original page content/order. Placement adapts to each page's dimensions and rotation, with safe margins and an error for pages too small for the configured font. Encrypted/invalid/missing PDFs, invalid settings, source overwrite, and unsafe output paths are handled with clear errors. Existing destinations require confirmation.
+- **Files**: Added `src/core/add_page_numbers.py`, `src/ui/pages/add_page_numbers.py`, and `tests/test_add_page_numbers.py`; updated app routing, tool metadata, shared preview worker's metadata-only mode, GUI tests, README, and this progress log.
+- **Dependencies**: No dependencies added; reused PyMuPDF, PySide6, and shared output validation.
+- **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 70 passed. `git diff --check` passed (Git reported only expected CRLF normalization notices).
+- **Manual verification**: Not performed. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py` in Windows PowerShell. Open Add Page Numbers, choose a multi-page PDF, verify each of the six positions, try a custom starting number/font size, and save as a new file.
+- **Known limitations**: The page number is a standard Helvetica text overlay and is not configurable by font family/color. Very small pages reject font/margin settings that do not fit.
 - **Git**: Changes remain uncommitted and have not been pushed, pending review.
 - **Next**: Stop for review before implementing another feature.

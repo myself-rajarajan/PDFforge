@@ -39,7 +39,10 @@ class PdfPreviewWorker(QThread):
             if page_count < 1:
                 raise PDFOperationError("The selected PDF does not contain any pages.")
             self.loaded.emit(self.path, page_count)
-            page_numbers = self.page_numbers or list(range(1, page_count + 1))
+            page_numbers = (
+                list(range(1, page_count + 1))
+                if self.page_numbers is None else self.page_numbers
+            )
             for page_number in page_numbers:
                 if page_number < 1 or page_number > page_count:
                     continue
