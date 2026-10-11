@@ -47,7 +47,7 @@ TOOLS = [
         "key": "tool_reorder",
         "title": "Reorder Pages",
         "description": "Rearrange the pages in a PDF.",
-        "is_implemented": False,
+        "is_implemented": True,
         "quick_access": False
     },
     {

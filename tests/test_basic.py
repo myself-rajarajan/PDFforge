@@ -67,10 +67,32 @@ def test_navigation_and_tool_pages(qapp):
         assert window.sidebar.buttons[[b.property("key") for b in window.sidebar.buttons].index(key)].property("active")
     assert window.stack.count() == 12
     assert window._pages["tool_merge"] is window.merge_page
+    assert window._pages["tool_reorder"] is window.reorder_pages_page
+    assert next(tool for tool in TOOLS if tool["key"] == "tool_reorder")["is_implemented"]
     window.sidebar.merge_btn.click()
     assert window.stack.currentWidget() is window.merge_page
     window.sidebar.remove_btn.click()
     assert window.stack.currentWidget() is window.remove_pages_page
+
+def test_reorder_thumbnail_drop_tracks_displayed_order(qapp):
+    from src.ui.pages.reorder_pages import ReorderPagesPage
+    page = ReorderPagesPage()
+    page.input_path = "document.pdf"
+    page.page_count = 3
+    page.page_order = [1, 2, 3]
+    for number in page.page_order:
+        page.thumbnail_grid.add_page(number)
+    page._page_moved(3, 1)
+    assert page.page_order == [3, 1, 2]
+    assert [button.page_number for button in page.thumbnail_grid.buttons] == [3, 1, 2]
+    assert [button.text() for button in page.thumbnail_grid.buttons] == [
+        "Position 1 • Page 3", "Position 2 • Page 1", "Position 3 • Page 2",
+    ]
+    page._page_moved(99, 1)
+    assert page.page_order == [3, 1, 2]
+    page._page_moved(3, 2, True)
+    assert page.page_order == [1, 2, 3]
+    assert [button.page_number for button in page.thumbnail_grid.buttons] == [1, 2, 3]
 
 def test_merge_page_can_reorder_and_remove_files(qapp):
     from PySide6.QtWidgets import QListWidgetItem

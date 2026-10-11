@@ -9,6 +9,7 @@ from src.ui.pages.all_tools import AllToolsPage
 from src.ui.pages.dashboard import DashboardPage
 from src.ui.pages.merge_pdf import MergePDFPage
 from src.ui.pages.remove_pages import RemovePagesPage
+from src.ui.pages.reorder_pages import ReorderPagesPage
 from src.ui.sidebar import Sidebar
 from src.ui.theme import Theme
 from src.utils.constants import TOOLS
@@ -92,6 +93,7 @@ class PDFForgeApp(QMainWindow):
         self.all_tools = AllToolsPage()
         self.merge_page = MergePDFPage()
         self.remove_pages_page = RemovePagesPage()
+        self.reorder_pages_page = ReorderPagesPage()
         self._register_page("home", self.dashboard)
         self._register_page("all_tools", self.all_tools)
         self._register_page("recent", InfoPage(
@@ -108,6 +110,8 @@ class PDFForgeApp(QMainWindow):
                 page = self.merge_page
             elif tool["key"] == "tool_remove":
                 page = self.remove_pages_page
+            elif tool["key"] == "tool_reorder":
+                page = self.reorder_pages_page
             else:
                 page = InfoPage(tool["title"], tool["description"], "COMING SOON")
             self._register_page(tool["key"], page)

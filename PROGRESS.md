@@ -2,7 +2,7 @@
 
 ## Project Overview
 - **Project Name**: PDFForge
-- **Current Phase**: Phase 3, Step 2 — Remove PDF Pages
+- **Current Phase**: Phase 3, Step 3 — Reorder PDF Pages
 - **Status**: Completed
 
 ## Phase 1 Checklist
@@ -74,6 +74,18 @@
 - **Manual visual verification**: Not performed. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py` in Windows PowerShell and open Merge PDF from the sidebar or dashboard.
 - **Known limitations**: Large merges run in the background but have no progress percentage or cancellation control. Other PDF tools remain Coming Soon.
 - **Git**: Completed in commit `8a5411a`; no push.
+- **Next**: Stop for review before implementing another feature.
+
+## Phase 3, Step 3 — Reorder PDF Pages (11 October 2026)
+- **Status**: Implemented and automated tests pass; manual GUI inspection remains outstanding.
+- **GUI**: Replaced the Reorder Pages placeholder with a native page that opens a local PDF, renders numbered page thumbnails, supports drop-before/drop-after drag ordering, shows the current original-page sequence, and saves to a user-selected destination. Page processing runs in a background worker.
+- **Behavior**: Reuses `pypdf` to preserve page content and rotation while writing pages in the exact displayed order. Invalid permutations, missing/invalid/encrypted PDFs, source overwrite attempts, invalid output paths, and unconfirmed existing destinations are rejected. Original files remain unchanged.
+- **Files**: Added `src/core/reorder_pages.py`, `src/ui/pages/reorder_pages.py`, and `tests/test_reorder_pages.py`; updated shared thumbnail drag support, app routing, tool metadata, GUI tests, README, and this progress log.
+- **Dependencies**: No dependencies added; reused `pypdf`, Qt PDF rendering, and existing output validation.
+- **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 52 passed. `git diff --check` passed (Git reported only expected CRLF normalization notices).
+- **Manual visual verification**: Not performed. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py` in Windows PowerShell, then open Reorder Pages from the dashboard or All Tools, open a multi-page PDF, drag thumbnails, and save to a new destination.
+- **Known limitations**: Large PDFs have no progress percentage or cancellation control. Password-protected PDFs are rejected; PDFForge does not request or bypass passwords.
+- **Git**: Changes remain uncommitted and have not been pushed, pending review.
 - **Next**: Stop for review before implementing another feature.
 
 ## Phase 3, Step 2 — Remove PDF Pages (11 October 2026)

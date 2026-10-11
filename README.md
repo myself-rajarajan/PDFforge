@@ -4,7 +4,7 @@ PDFForge is a professional, offline-first native desktop PDF utility inspired by
 
 ## Phase 2 — Native Desktop GUI
 
-The current build provides a native PySide6 dashboard, local tool search, navigation, and clear placeholders for tools that are still planned. Phase 3, Step 1 adds PDF merging and Step 2 adds page removal; the other PDF processing features remain planned.
+The current build provides a native PySide6 dashboard, local tool search, and navigation. Phase 3, Steps 1–3 add PDF merging, page removal, and page reordering; the other PDF processing features remain planned.
 
 ### Typography
 
@@ -13,13 +13,13 @@ The application configures its font centrally through `QApplication.setFont()`. 
 ## Implemented PDF Operations
 - **Merge PDFs**: Combine multiple local PDF files in a user-selected order. Each file shows a first-page thumbnail and page count. The tool validates inputs, protects source files from being overwritten, and asks before replacing an existing destination.
 - **Remove PDF Pages**: Browse rendered page thumbnails and click pages to select them, or enter one-based page numbers/ranges. The tool previews which pages will be removed and retained, preserves remaining-page order, ignores duplicates, protects the original, and rejects removing every page.
+- **Reorder PDF Pages**: Browse rendered, numbered page thumbnails and drag them into a new order. Drop on the upper or lower half of a thumbnail to insert before or after it. The displayed order is saved to a new local PDF; source files are protected and existing destinations require confirmation.
 
 ## Features (Planned)
 - **Compress PDF**: Reduce PDF file size while preserving quality.
 - **Image Conversion**: Convert images to PDF and PDF pages to images.
 - **Unlock PDF**: Open password-protected PDFs (credentials required).
 - **Protect PDF**: Secure PDFs with passwords and encryption.
-- **Reorder Pages**: Rearrange the pages in a PDF.
 - **Add Page Numbers**: Customize and add page numbers to documents.
 
 ## Technology Stack
@@ -73,3 +73,4 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for the detailed development plan and cur
 - **Phase 2 (Native Desktop GUI)**: Implemented; automated tests are documented in [PROGRESS.md](PROGRESS.md). Manual visual review is still required.
 - **Phase 3, Step 1 (Merge PDFs)**: Implemented and covered by automated tests; manual GUI review is still required.
 - **Phase 3, Step 2 (Remove PDF Pages)**: Implemented and covered by automated tests; manual GUI review is still required.
+- **Phase 3, Step 3 (Reorder PDF Pages)**: Implemented and covered by automated tests; manual GUI review is still required.
