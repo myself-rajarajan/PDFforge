@@ -1,8 +1,8 @@
 """Main window and page navigation for PDFForge."""
 
 from PySide6.QtWidgets import (
-    QApplication, QFrame, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QStackedWidget,
-    QVBoxLayout, QWidget,
+    QApplication, QFrame, QHBoxLayout, QLabel, QLineEdit,
+    QMainWindow, QStackedWidget, QVBoxLayout, QWidget,
 )
 
 from src.ui.pages.all_tools import AllToolsPage
@@ -57,15 +57,17 @@ class PDFForgeApp(QMainWindow):
             Theme.initialize_app(app)
         super().__init__()
         self.setWindowTitle("PDFForge")
-        self.setMinimumSize(1000, 650)
+        self.setMinimumSize(860, 580)
         self.resize(1400, 850)
         self._pages: dict[str, QWidget] = {}
+        self._page_margins: dict[str, tuple[int, int, int, int, int]] = {}
 
         root = QWidget()
         root_layout = QHBoxLayout(root)
         root_layout.setContentsMargins(0, 0, 0, 0)
         root_layout.setSpacing(0)
         self.sidebar = Sidebar()
+        self.sidebar.set_adaptive_width(self.width())
         root_layout.addWidget(self.sidebar)
 
         body = QWidget()
@@ -75,7 +77,7 @@ class PDFForgeApp(QMainWindow):
         toolbar = QFrame()
         toolbar.setObjectName("Toolbar")
         toolbar_layout = QHBoxLayout(toolbar)
-        toolbar_layout.setContentsMargins(28, 14, 28, 14)
+        toolbar_layout.setContentsMargins(24, 12, 24, 12)
         self.page_title = QLabel("Home")
         self.page_title.setStyleSheet("font-size: 18px; font-weight: 700;")
         toolbar_layout.addWidget(self.page_title)
@@ -149,6 +151,12 @@ class PDFForgeApp(QMainWindow):
 
     def _register_page(self, key: str, page: QWidget) -> None:
         self._pages[key] = page
+        if page.layout() is not None:
+            margins = page.layout().contentsMargins()
+            self._page_margins[key] = (
+                margins.left(), margins.top(), margins.right(), margins.bottom(),
+                page.layout().spacing(),
+            )
         self.stack.addWidget(page)
 
     def navigate(self, key: str) -> None:
@@ -169,3 +177,23 @@ class PDFForgeApp(QMainWindow):
         self.all_tools.set_search_query(query)
         if query and self.stack.currentWidget() is not self.all_tools:
             self.navigate("all_tools")
+
+    def resizeEvent(self, event) -> None:
+        super().resizeEvent(event)
+        self.sidebar.set_adaptive_width(self.width())
+        compact = self.width() - self.sidebar.width() < 760
+        for key, page in self._pages.items():
+            layout = page.layout()
+            base = self._page_margins.get(key)
+            if layout is None or base is None:
+                continue
+            left, top, right, bottom, spacing = base
+            scale = 0.55 if compact else 1.0
+            layout.setContentsMargins(
+                round(left * scale), round(top * scale),
+                round(right * scale), round(bottom * scale),
+            )
+            layout.setSpacing(max(8, round(spacing * (0.75 if compact else 1.0))))
+
+    def closeEvent(self, event) -> None:
+        super().closeEvent(event)

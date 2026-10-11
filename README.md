@@ -8,7 +8,7 @@ The current build provides a native PySide6 dashboard, local tool search, and na
 
 ### Typography
 
-The application configures its font centrally through `QApplication.setFont()`. It prefers Google Sans when that font is installed or a licensed `resources/fonts/GoogleSans-Regular.ttf` is supplied; otherwise it falls back to Segoe UI, Arial, or the system default. Google Sans was not found in the local project or Windows font directories during this update, so no font file is bundled and Google Sans rendering is not confirmed. The source and PyInstaller resource lookup both resolve the optional font from `resources/fonts/` (PyInstaller builds must include that directory as data).
+The application configures its font centrally through `QApplication.setFont()`. It prefers an available Google Sans, then Inter or Roboto, followed by Segoe UI, Arial, and the system default. Google Sans, Inter, and Roboto font files were not found in the project or Windows font folders during the UI polish pass; Windows Segoe UI files are present. No font is bundled because a redistribution license was not verified. The optional Google Sans resource lookup supports source and PyInstaller builds under `resources/fonts/` (a future packaged font must include its license and be added as build data).
 
 ## Implemented PDF Operations
 - **Merge PDFs**: Combine multiple local PDF files in a user-selected order. Each file shows a first-page thumbnail and page count. The tool validates inputs, protects source files from being overwritten, and asks before replacing an existing destination.
@@ -20,6 +20,18 @@ The application configures its font centrally through `QApplication.setFont()`. 
 - **Compress PDF**: Apply best-effort cleanup, deflation, and image optimization for images over 200 DPI. A quality slider (20–95%) controls JPEG quality and target resolution; lower quality can reduce image detail to seek smaller output. Changing the slider measures an estimated result with a temporary compression pass. Not every PDF will become smaller; the original and final sizes plus actual savings/no-change/growth are shown.
 - **Protect PDF**: Encrypt a local PDF with AES-256 after the user enters and confirms a non-empty password. It uses pypdf's AES-256 writer when its optional crypto backend is available and the already-installed PyMuPDF AES-256 writer otherwise. The input remains unchanged, already-encrypted documents are rejected, and the output runs in a background worker. Existing destinations require confirmation.
 - **Unlock PDF**: Remove encryption from a local PDF after verifying a password supplied by the user. It uses pypdf password verification and writing where supported, and the already-installed PyMuPDF backend for AES PDFs when pypdf's optional crypto backend is unavailable. The source is preserved and existing output destinations require confirmation.
+
+## Reliability Status
+
+The automated regression suite currently passes **123 tests**. It includes cross-feature failure-injection checks confirming that temporary PDF outputs are removed when the final destination install fails, and that a failed PDF-to-image encoding preserves existing output files and removes its staging directory. GUI routing, repainting, and page initialization are covered by offscreen Qt tests; manual visual verification remains outstanding. See [PROGRESS.md](PROGRESS.md) for the baseline and detailed verification record.
+
+## UI/UX Polish
+
+The native PySide6 interface uses a layered charcoal palette, low-contrast borders, rounded cards and fields, and keyboard focus outlines. It avoids QWidget graphics effects to keep native repainting reliable. Tool directories reflow between one and several columns as the window changes size; the sidebar adjusts its width and scrolls when vertical space is limited; PDF page previews scale within a bounded range. The active sidebar marker slides to the selected tool. The interface remains local and offline; no web view or dependency was added. Automated resizing and navigation checks pass, but a manual visual review is still needed.
+
+### Manual UI review
+
+Run `.\.venv\Scripts\python.exe main.py` from the project folder. Navigate to all nine PDF tools using both the dashboard/All Tools cards and sidebar; check the active marker and page rendering. Resize repeatedly through 860×580, 1100×720, and 1500×900; check that tool cards reflow, the sidebar scrolls, paths wrap or remain accessible, and page previews resize. For each tool, test native input/output pickers, an ordinary success, a validation/error state, and an existing-output confirmation. Also check image thumbnails, PDF page previews, page drag/drop in Reorder Pages, page selection in Remove Pages, and progress feedback in PDF-to-Images and Compress PDF.
 
 ## Features (Planned)
 
@@ -80,3 +92,5 @@ See [docs/ROADMAP.md](docs/ROADMAP.md) for the detailed development plan and cur
 - **Phase 5, Step 1 (Protect PDFs)**: Implemented and covered by automated tests; manual GUI review is still required.
 - **Phase 5, Step 2 (Unlock PDFs)**: Implemented and covered by automated tests; manual GUI review is still required.
 - **Phase 5, Step 3 (PDF Compression)**: Implemented and covered by automated tests; manual GUI review is still required.
+- **Phase 6 (Regression Testing and Reliability)**: Regression and repaint checks pass in the current 123-test suite, including temporary-output cleanup and failed-export safety; manual GUI review is still required.
+- **UI/UX Polish**: Shared dark styling, responsive grids/sidebar/previews, keyboard focus states, and native sidebar marker motion are implemented without QWidget graphics effects; manual visual review is still required.

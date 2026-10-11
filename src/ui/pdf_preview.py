@@ -107,6 +107,7 @@ class PageThumbnailButton(QToolButton):
                 font-size: 13px;
             }}
             QToolButton:hover {{ border: 1px solid {Theme.ACCENT_BLUE}; }}
+            QToolButton:focus {{ border: 2px solid {Theme.FOCUS_COLOR}; }}
             QToolButton:checked {{
                 background-color: #3B2A31;
                 border: 2px solid #F28B82;
@@ -179,8 +180,10 @@ class ThumbnailGrid(QWidget):
         super().__init__()
         self.draggable = draggable
         self.selectable = selectable
-        self.icon_size = icon_size or QSize(150, 190)
-        self.button_size = button_size or QSize(190, 245)
+        self._base_icon_size = icon_size or QSize(150, 190)
+        self._base_button_size = button_size or QSize(190, 245)
+        self.icon_size = self._base_icon_size
+        self.button_size = self._base_button_size
         self._layout = QGridLayout(self)
         self._layout.setContentsMargins(8, 8, 8, 8)
         self._layout.setSpacing(14)
@@ -245,7 +248,23 @@ class ThumbnailGrid(QWidget):
 
     def resizeEvent(self, event) -> None:
         super().resizeEvent(event)
+        self._apply_responsive_sizes()
         self._reflow()
+
+    def _apply_responsive_sizes(self) -> None:
+        """Scale preview tiles gently with their viewport, within readable bounds."""
+        scale = max(0.82, min(1.10, max(240, self.width()) / 850))
+        self.button_size = QSize(
+            round(self._base_button_size.width() * scale),
+            round(self._base_button_size.height() * scale),
+        )
+        self.icon_size = QSize(
+            round(self._base_icon_size.width() * scale),
+            round(self._base_icon_size.height() * scale),
+        )
+        for button in self._buttons:
+            button.setFixedSize(self.button_size)
+            button.setIconSize(self.icon_size)
 
     def _reflow(self, *, force: bool = False) -> None:
         columns = max(1, (self.width() - 16) // (self.button_size.width() + self._layout.spacing()))

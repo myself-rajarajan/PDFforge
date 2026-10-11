@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-import fitz
+import pymupdf as fitz
 from PIL import Image
 import pytest
 

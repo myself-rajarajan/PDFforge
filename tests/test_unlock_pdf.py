@@ -1,6 +1,6 @@
 """Temporary-file tests for authorized PDF unlocking."""
 
-import fitz
+import pymupdf as fitz
 import pytest
 from pypdf import PdfReader, PdfWriter
 

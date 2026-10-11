@@ -1,6 +1,6 @@
 """Temporary-PDF tests for page numbering, placement, and output safety."""
 
-import fitz
+import pymupdf as fitz
 import pytest
 
 from src.core.add_page_numbers import add_page_numbers

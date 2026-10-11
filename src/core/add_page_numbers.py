@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import tempfile
 
-import fitz
+import pymupdf as fitz
 
 from src.core.pdf_output import PDFOperationError, validate_pdf_output_path
 

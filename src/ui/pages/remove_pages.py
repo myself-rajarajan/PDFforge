@@ -77,7 +77,7 @@ class RemovePagesPage(QWidget):
         self.thumbnail_grid.page_toggled.connect(self._page_toggled)
         self.preview_scroll = QScrollArea()
         self.preview_scroll.setWidgetResizable(True)
-        self.preview_scroll.setMinimumWidth(400)
+        self.preview_scroll.setMinimumWidth(260)
         self.preview_scroll.setMinimumHeight(330)
         self.preview_scroll.setWidget(self.thumbnail_grid)
         workspace.addWidget(self.preview_scroll, 1)

@@ -8,7 +8,7 @@ from pathlib import Path
 import tempfile
 from typing import Callable
 
-import fitz
+import pymupdf as fitz
 from PIL import Image
 
 from src.core.pdf_output import PDFOperationError

@@ -2,7 +2,7 @@
 
 from io import BytesIO
 
-import fitz
+import pymupdf as fitz
 import pytest
 from pypdf import PdfReader
 from PIL import Image

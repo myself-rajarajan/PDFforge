@@ -29,8 +29,8 @@ def test_app_initialization(qapp):
     from src.ui.theme import Theme
     window = PDFForgeApp()
     assert window.windowTitle() == "PDFForge"
-    assert window.minimumSize().width() == 1000
-    assert window.minimumSize().height() == 650
+    assert window.minimumSize().width() == 860
+    assert window.minimumSize().height() == 580
     assert QApplication.font().family() == Theme._font_family
 
 def test_font_selection_falls_back_without_google_sans():
@@ -85,6 +85,31 @@ def test_navigation_and_tool_pages(qapp):
     assert window.stack.currentWidget() is window.merge_page
     window.sidebar.remove_btn.click()
     assert window.stack.currentWidget() is window.remove_pages_page
+
+def test_navigation_repaints_without_nested_graphics_effects(qapp):
+    from PySide6.QtCore import qInstallMessageHandler
+    from src.app import PDFForgeApp
+
+    qt_messages = []
+    previous_handler = qInstallMessageHandler(
+        lambda _kind, _context, message: qt_messages.append(message)
+    )
+    window = PDFForgeApp()
+    try:
+        window.show()
+        for key in ("all_tools", "tool_merge", "home"):
+            window.navigate(key)
+            qapp.processEvents()
+        window.resize(1100, 720)
+        qapp.processEvents()
+        assert all(card.graphicsEffect() is None for card in window.dashboard._all_cards)
+        assert all(page.graphicsEffect() is None for page in window._pages.values())
+        assert not any("Painter not active" in message for message in qt_messages)
+        assert not any("only be painted by one painter" in message for message in qt_messages)
+    finally:
+        window.close()
+        qapp.processEvents()
+        qInstallMessageHandler(previous_handler)
 
 def test_protect_page_masks_password_fields(qapp):
     from PySide6.QtWidgets import QLineEdit
@@ -174,7 +199,7 @@ def test_images_to_pdf_selected_image_has_visible_thumbnail(qapp, tmp_path):
     assert not item.icon().isNull()
 
 def test_pdf_preview_metadata_only_skips_thumbnail_rendering(qapp, tmp_path):
-    import fitz
+    import pymupdf as fitz
     from PySide6.QtTest import QSignalSpy
     from src.ui.pdf_preview import PdfPreviewWorker
     source = tmp_path / "metadata-only.pdf"
@@ -193,7 +218,7 @@ def test_pdf_preview_metadata_only_skips_thumbnail_rendering(qapp, tmp_path):
     assert thumbnails.count() == 0
 
 def test_pdf_to_images_page_shows_selected_pdf_pages(qapp, tmp_path):
-    import fitz
+    import pymupdf as fitz
     from src.ui.pages.pdf_to_images import PdfToImagesPage
     source = tmp_path / "preview-pages.pdf"
     document = fitz.open()
@@ -309,3 +334,30 @@ def test_toolbar_search_opens_filtered_tool_directory(qapp):
     window.search_input.setText("compress")
     assert window.stack.currentWidget() is window.all_tools
     assert sum(not card.isHidden() for card in window.all_tools.cards) == 1
+
+
+def test_window_layouts_adapt_at_compact_medium_and_wide_sizes(qapp):
+    from src.app import PDFForgeApp
+
+    window = PDFForgeApp()
+    window.show()
+    for width, sidebar_width, dashboard_columns in (
+        (860, 170, 2), (1100, 209, 3), (1500, 240, 4),
+    ):
+        window.resize(width, 720)
+        qapp.processEvents()
+        assert window.sidebar.width() == sidebar_width
+        assert window.dashboard.quick_grid.getItemPosition(dashboard_columns - 1)[0] == 0
+        if dashboard_columns < len(window.dashboard._quick_cards):
+            assert window.dashboard.quick_grid.getItemPosition(dashboard_columns)[0] == 1
+    assert window.dashboard.layout().contentsMargins().left() == 32
+    window.navigate("tool_remove")
+    assert window.stack.currentWidget() is window.remove_pages_page
+    window.close()
+
+
+def test_reduced_motion_preference_disables_transitions(monkeypatch, qapp):
+    from src.ui.theme import Theme
+
+    monkeypatch.setenv("PDFFORGE_REDUCED_MOTION", "1")
+    assert not Theme.animations_enabled(qapp)

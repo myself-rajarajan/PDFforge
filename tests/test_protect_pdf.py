@@ -1,6 +1,6 @@
 """Tests for local AES-256 PDF protection."""
 
-import fitz
+import pymupdf as fitz
 import pytest
 from pypdf import PdfReader, PdfWriter
 

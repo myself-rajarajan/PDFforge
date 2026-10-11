@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGridLayout, QScrollArea, QLineEdit
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGridLayout, QScrollArea, QLineEdit, QSizePolicy
 from PySide6.QtCore import Qt, Signal
 from src.ui.theme import Theme
 from src.ui.tool_card import ToolCard
@@ -28,7 +28,8 @@ class AllToolsPage(QWidget):
         # Search field (local to this page as well)
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Search PDF tools...")
-        self.search_input.setFixedWidth(400)
+        self.search_input.setMaximumWidth(520)
+        self.search_input.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.search_input.textChanged.connect(self._filter_tools)
         layout.addWidget(self.search_input)
 
@@ -40,18 +41,21 @@ class AllToolsPage(QWidget):
         self.grid_layout.setContentsMargins(0, 20, 0, 0)
         self.grid_layout.setSpacing(20)
 
-        self.cards = []
-        self._populate_grid(TOOLS)
-
-        scroll.setWidget(scroll_content)
-        layout.addWidget(scroll)
-
         # No results message
         self.no_results_label = QLabel("No tools match your search.")
         self.no_results_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.no_results_label.setStyleSheet(f"color: {Theme.TEXT_SECONDARY}; font-size: 16px; margin-top: 50px;")
         self.no_results_label.hide()
+
+        self.cards = []
+        self._populate_grid(TOOLS)
+        scroll.setWidget(scroll_content)
+        layout.addWidget(scroll)
         layout.addWidget(self.no_results_label)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._reflow_cards()
 
     def _populate_grid(self, tools_list):
         # Clear existing
@@ -61,12 +65,23 @@ class AllToolsPage(QWidget):
         self.cards.clear()
 
         for i, tool in enumerate(tools_list):
-            row = i // 3
-            col = i % 3
             card = ToolCard(tool["title"], tool["description"], tool["key"], tool["is_implemented"])
             card.clicked.connect(self.tool_clicked.emit)
-            self.grid_layout.addWidget(card, row, col)
             self.cards.append(card)
+        self._reflow_cards()
+
+    def _reflow_cards(self):
+        if not self.cards:
+            return
+        available = max(300, self.width() - 72)
+        columns = max(1, min(3, (available + 14) // 250))
+        while self.grid_layout.count():
+            self.grid_layout.takeAt(0)
+        for index, card in enumerate(self.cards):
+            self.grid_layout.addWidget(card, index // columns, index % columns)
+        for column in range(3):
+            self.grid_layout.setColumnStretch(column, int(column < columns))
+        self._filter_tools(self.search_input.text())
 
     def _filter_tools(self, query):
         query = query.lower()
