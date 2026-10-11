@@ -2,8 +2,8 @@
 
 ## Project Overview
 - **Project Name**: PDFForge
-- **Current Phase**: Phase 5 — PDF Password Tools
-- **Status**: Step 1 and Step 2 implemented; manual review pending
+- **Current Phase**: Phase 5 — PDF Security and Compression
+- **Status**: Steps 1–3 implemented; manual review pending
 
 ## Phase 1 Checklist
 - [x] Inspect the repository and existing environment.
@@ -85,6 +85,17 @@
 - **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 99 passed. `git diff --check` passed (Git may report line-ending normalization notices).
 - **Manual verification**: Not performed. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py`, open Unlock PDF, select a password-protected document, enter its authorized password, choose a different output filename, and verify the output opens without a password and has the same page count/order/content. Also try a wrong password, an unencrypted PDF, and confirming/rejecting replacement of an existing output.
 - **Known limitations**: pypdf AES processing requires its optional cryptography backend; this environment uses PyMuPDF for AES-protected files. Unknown passwords are never guessed or bypassed.
+- **Git**: Changes remain uncommitted and have not been pushed, pending review.
+
+## Phase 5, Step 3 — PDF Compression (11 October 2026)
+- **Status**: Implemented and covered by automated tests; manual GUI verification remains outstanding.
+- **GUI**: Added a native Compress PDF page for selecting the input/output and setting image quality with a slider. Changing the slider measures a temporary compression pass in a background worker and shows the estimated output size below it. Final compression reports both file sizes, actual percent saved (or no reduction/growth), and the output path.
+- **Behavior**: Uses PyMuPDF cleanup, garbage collection, stream/font/image deflation, and `rewrite_images` on images above 200 DPI. The 20–95 quality slider controls JPEG quality and target resolution (approximately 113–163 DPI); lower settings trade image detail for potential size reduction. The page explains output size is content-dependent. Missing, invalid, corrupt, password-protected PDFs and input/output collisions are rejected; existing destinations require confirmation.
+- **Files**: Added `src/core/compress_pdf.py`, `src/ui/pages/compress_pdf.py`, and `tests/test_compress_pdf.py`; updated app routing, tool metadata, GUI routing tests, README, and this progress log.
+- **Dependencies**: No dependencies added; reused PyMuPDF 1.28.2, PySide6, and shared output validation.
+- **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 111 passed. `git diff --check` passed (Git may report line-ending normalization notices).
+- **Manual verification**: Not performed. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py`, open Compress PDF, choose a PDF with high-resolution images and a new output destination, then compare original and output file sizes and inspect the output visually. Also try a text-only PDF, a password-protected PDF, and an existing output path.
+- **Known limitations**: Image optimization uses lossy JPEG recompression for eligible image assets and can reduce image detail. PDFs without eligible images may show little/no reduction or grow slightly due to file structure and compression overhead.
 - **Git**: Changes remain uncommitted and have not been pushed, pending review.
 
 ## Phase 5, Step 1 — Password-protect PDFs (11 October 2026)

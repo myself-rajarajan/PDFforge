@@ -79,6 +79,8 @@ def test_navigation_and_tool_pages(qapp):
     assert next(tool for tool in TOOLS if tool["key"] == "tool_protect")["is_implemented"]
     assert window._pages["tool_unlock"] is window.unlock_pdf_page
     assert next(tool for tool in TOOLS if tool["key"] == "tool_unlock")["is_implemented"]
+    assert window._pages["tool_compress"] is window.compress_pdf_page
+    assert next(tool for tool in TOOLS if tool["key"] == "tool_compress")["is_implemented"]
     window.sidebar.merge_btn.click()
     assert window.stack.currentWidget() is window.merge_page
     window.sidebar.remove_btn.click()
@@ -96,6 +98,14 @@ def test_unlock_page_masks_password_field(qapp):
     from src.ui.pages.unlock_pdf import UnlockPdfPage
     page = UnlockPdfPage()
     assert page.password_input.echoMode() == QLineEdit.EchoMode.Password
+
+def test_compress_page_quality_slider_updates_resolution_description(qapp):
+    from src.ui.pages.compress_pdf import CompressPdfPage
+    page = CompressPdfPage()
+    assert page.quality_slider.value() == 75
+    assert "target 150 DPI" in page.quality_value_label.text()
+    page.quality_slider.setValue(20)
+    assert "target 113 DPI" in page.quality_value_label.text()
 
 def test_reorder_thumbnail_drop_tracks_displayed_order(qapp):
     from src.ui.pages.reorder_pages import ReorderPagesPage

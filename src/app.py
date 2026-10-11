@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
 
 from src.ui.pages.all_tools import AllToolsPage
 from src.ui.pages.add_page_numbers import AddPageNumbersPage
+from src.ui.pages.compress_pdf import CompressPdfPage
 from src.ui.pages.dashboard import DashboardPage
 from src.ui.pages.images_to_pdf import ImagesToPdfPage
 from src.ui.pages.merge_pdf import MergePDFPage
@@ -97,6 +98,7 @@ class PDFForgeApp(QMainWindow):
         self.dashboard = DashboardPage()
         self.all_tools = AllToolsPage()
         self.merge_page = MergePDFPage()
+        self.compress_pdf_page = CompressPdfPage()
         self.remove_pages_page = RemovePagesPage()
         self.reorder_pages_page = ReorderPagesPage()
         self.add_page_numbers_page = AddPageNumbersPage()
@@ -118,6 +120,8 @@ class PDFForgeApp(QMainWindow):
         for tool in TOOLS:
             if tool["key"] == "tool_merge":
                 page = self.merge_page
+            elif tool["key"] == "tool_compress":
+                page = self.compress_pdf_page
             elif tool["key"] == "tool_convert":
                 page = self.images_to_pdf_page
             elif tool["key"] == "tool_pdf_to_images":

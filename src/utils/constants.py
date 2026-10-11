@@ -11,8 +11,8 @@ TOOLS = [
     {
         "key": "tool_compress",
         "title": "Compress PDF",
-        "description": "Reduce PDF file size where practical.",
-        "is_implemented": False,
+        "description": "Optimize images and PDF structure to reduce file size where practical.",
+        "is_implemented": True,
         "quick_access": True
     },
     {
