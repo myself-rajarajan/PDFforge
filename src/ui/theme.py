@@ -1,4 +1,10 @@
-"""Theme and style constants for PDFForge."""
+"""Shared visual theme and application-wide font initialization."""
+
+import sys
+from pathlib import Path
+
+from PySide6.QtGui import QFont, QFontDatabase
+from PySide6.QtWidgets import QApplication
 
 class Theme:
     # Color palette (Steam-inspired)
@@ -11,6 +17,62 @@ class Theme:
     TEXT_PRIMARY = "#F1F5F9"
     TEXT_SECONDARY = "#A7B0BC"
     BORDER_COLOR = "#303B47"
+    FONT_FAMILY = "Google Sans"
+    FALLBACK_FAMILIES = ("Segoe UI", "Arial", "sans-serif")
+    _font_family: str | None = None
+    _font_id = -1
+
+    @classmethod
+    def font_resource_path(cls) -> Path:
+        """Return the optional bundled font path in source and PyInstaller builds."""
+        bundle_root = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parents[2]))
+        return bundle_root / "resources" / "fonts" / "GoogleSans-Regular.ttf"
+
+    @classmethod
+    def choose_font_family(
+        cls, available_families: list[str], google_sans_loaded: bool = False,
+        system_default: str = "",
+    ) -> str:
+        """Prefer Google Sans when available, otherwise select a safe local fallback."""
+        families = {family.casefold(): family for family in available_families}
+        google = families.get(cls.FONT_FAMILY.casefold())
+        if google_sans_loaded and google:
+            return google
+        if google:
+            return google
+        for fallback in cls.FALLBACK_FAMILIES:
+            if fallback.casefold() == "sans-serif":
+                continue
+            if fallback.casefold() in families:
+                return families[fallback.casefold()]
+        if system_default:
+            return system_default
+        return "sans-serif"
+
+    @classmethod
+    def initialize_app(cls, app: QApplication) -> str:
+        """Set one application font before widgets are constructed, with safe fallback."""
+        if cls._font_family is None:
+            loaded = False
+            try:
+                font_path = cls.font_resource_path()
+                if font_path.is_file():
+                    cls._font_id = QFontDatabase.addApplicationFont(str(font_path))
+                    loaded = cls._font_id >= 0
+            except (OSError, RuntimeError):
+                loaded = False
+
+            try:
+                families = QFontDatabase.families()
+            except RuntimeError:
+                families = []
+            cls._font_family = cls.choose_font_family(
+                list(families), google_sans_loaded=loaded,
+                system_default=app.font().family(),
+            )
+        app.setFont(QFont(cls._font_family, 10))
+        app.setStyleSheet(cls.GLOBAL_STYLE)
+        return cls._font_family
 
     # Stylesheets
     GLOBAL_STYLE = f"""
@@ -21,7 +83,7 @@ class Theme:
 
         QWidget {{
             color: {TEXT_PRIMARY};
-            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
         }}
 
         QLabel {{
@@ -46,6 +108,7 @@ class Theme:
             border-radius: 4px;
             padding: 10px 20px;
             font-weight: bold;
+            font-size: 14px;
         }}
 
         QPushButton:hover {{

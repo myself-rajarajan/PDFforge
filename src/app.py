@@ -1,7 +1,7 @@
 """Main window and page navigation for PDFForge."""
 
 from PySide6.QtWidgets import (
-    QFrame, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QStackedWidget,
+    QApplication, QFrame, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QStackedWidget,
     QVBoxLayout, QWidget,
 )
 
@@ -43,11 +43,13 @@ class PDFForgeApp(QMainWindow):
     }
 
     def __init__(self) -> None:
+        app = QApplication.instance()
+        if app is not None:
+            Theme.initialize_app(app)
         super().__init__()
         self.setWindowTitle("PDFForge")
         self.setMinimumSize(1000, 650)
         self.resize(1400, 850)
-        self.setStyleSheet(Theme.GLOBAL_STYLE)
         self._pages: dict[str, QWidget] = {}
 
         root = QWidget()

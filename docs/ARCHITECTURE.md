@@ -12,7 +12,7 @@ The entry point of the application. It handles high-level startup logic and init
 Initializes the main application instance and the primary window.
 
 ### `src/ui/`
-Contains native PySide6 UI components and the centralized `Theme` stylesheet.
+Contains native PySide6 UI components and the centralized `Theme` stylesheet. `Theme.initialize_app()` sets the application font before widgets are built, loads an optional Google Sans resource, and falls back to an available system font.
 - `sidebar.py`: Navigation buttons and selected-page state.
 - `tool_card.py`: Reusable clickable tool card.
 - `pages/dashboard.py`: Home feature panel and quick access cards.

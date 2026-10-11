@@ -24,11 +24,38 @@ def test_imports():
 
 def test_app_initialization(qapp):
     """Test that the main application window can be initialized."""
+    from PySide6.QtWidgets import QApplication
     from src.app import PDFForgeApp
+    from src.ui.theme import Theme
     window = PDFForgeApp()
     assert window.windowTitle() == "PDFForge"
     assert window.minimumSize().width() == 1000
     assert window.minimumSize().height() == 650
+    assert QApplication.font().family() == Theme._font_family
+
+def test_font_selection_falls_back_without_google_sans():
+    from src.ui.theme import Theme
+    assert Theme.choose_font_family(["Arial"], google_sans_loaded=False) == "Arial"
+    assert Theme.choose_font_family([], google_sans_loaded=False, system_default="System UI") == "System UI"
+
+def test_font_selection_prefers_google_sans_when_available():
+    from src.ui.theme import Theme
+    assert Theme.choose_font_family(["Google Sans", "Segoe UI"]) == "Google Sans"
+
+def test_font_initialization_survives_missing_resource(qapp, monkeypatch, tmp_path):
+    from PySide6.QtGui import QFontDatabase
+    from src.ui.theme import Theme
+    previous_family = Theme._font_family
+    previous_font = qapp.font()
+    monkeypatch.setattr(Theme, "_font_family", None)
+    monkeypatch.setattr(Theme, "font_resource_path", classmethod(lambda cls: tmp_path / "missing.ttf"))
+    monkeypatch.setattr(QFontDatabase, "families", staticmethod(lambda: ["Arial"]))
+    try:
+        assert Theme.initialize_app(qapp) == "Arial"
+        assert qapp.font().family() == "Arial"
+    finally:
+        Theme._font_family = previous_family
+        qapp.setFont(previous_font)
 
 def test_navigation_and_tool_pages(qapp):
     from src.app import PDFForgeApp

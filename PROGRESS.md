@@ -2,7 +2,7 @@
 
 ## Project Overview
 - **Project Name**: PDFForge
-- **Current Phase**: Phase 1 — Project Foundation and Git Setup
+- **Current Phase**: Phase 2 — Native Desktop GUI
 - **Status**: Completed
 
 ## Phase 1 Checklist
@@ -54,5 +54,12 @@
 - **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 6 passed. `git diff --check` checked; `.venv` is ignored.
 - **Visual verification**: Not manually launched or inspected in this run. Launch with `Set-Location 'C:\Users\rajar\OneDrive\Desktop\PDFforge'; .\.venv\Scripts\python.exe main.py` in Windows PowerShell.
 - **Known issues**: PDF operations are intentionally placeholders. UI layout has not yet received manual visual review.
-- **Git**: Branch `main`; Phase 2 commit pending final review.
+- **Git**: Branch `main`; Phase 2 completed in commit `d438d6d`.
 - **Next**: Wait for approval before starting Phase 3 — Core PDF Operations.
+
+## Typography Update (11 October 2026)
+- **Status**: Implemented and covered by automated tests.
+- **Font setup**: Centralized `QApplication.setFont()` initialization in `src/ui/theme.py`, called before app widgets are created. Google Sans is preferred if installed or available at `resources/fonts/GoogleSans-Regular.ttf`; fallback order is Segoe UI, Arial, then the system default.
+- **Availability and licensing**: No Google Sans font file was found in the project or Windows system/user font directories. No font was copied, downloaded, or bundled because a redistribution license was not verified. Google Sans rendering is not claimed.
+- **Packaging**: Font lookup supports the PyInstaller `_MEIPASS` extraction directory. A future bundled font must be included as PyInstaller data under `resources/fonts/`.
+- **Verification**: `.venv\Scripts\python.exe -m pytest -q` — 9 passed. Font preference, fallback selection, missing-resource initialization, and existing navigation/search behavior pass. `git diff --check` passed.
