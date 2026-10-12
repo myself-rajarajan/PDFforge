@@ -1,6 +1,6 @@
 # PDFForge v1.0.0
 
-PDFForge is a native Windows desktop application for processing PDFs locally. Version 1.0.0 is the proposed initial release; it has not been published.
+PDFForge v1.0.0 is the initial release of a native Windows desktop application for processing PDFs locally.
 
 ## Features
 
@@ -22,11 +22,11 @@ PDFForge is a native desktop application. PDF and image processing happens local
 
 ### Portable archive
 
-The project owner reports that the portable archive was extracted and tested. When made available, download `PDFForge-Windows-x64.zip`, extract it, and run `PDFForge.exe`. Keep the `_internal` folder next to the executable; the executable depends on those runtime files.
+The project owner reports that the portable archive was extracted and tested. Download `PDFForge-Windows-x64.zip`, extract it, and run `PDFForge.exe`. Keep the `_internal` folder next to the executable; the executable depends on those runtime files.
 
 ### Setup installer
 
-Expected asset: `PDFForge-Setup-v1.0.0.exe`. It has been built locally, but installation, launch, and uninstallation are not yet verified. Do not describe this asset as downloadable until those checks pass.
+Download `PDFForge-Setup-v1.0.0.exe` to install PDFForge per-user. The project owner reports that the installer was manually tested successfully.
 
 ## Limitations
 
@@ -39,7 +39,7 @@ Expected asset: `PDFForge-Setup-v1.0.0.exe`. It has been built locally, but inst
 
 | Asset | Status |
 | --- | --- |
-| `PDFForge-Windows-x64.zip` | Existing local archive, reported extracted and tested by the project owner; not uploaded or published. |
-| `PDFForge-Setup-v1.0.0.exe` | Built locally; pending install/uninstall testing; not uploaded or published. |
+| `PDFForge-Windows-x64.zip` | Portable Windows x64 application archive. |
+| `PDFForge-Setup-v1.0.0.exe` | Per-user Windows x64 installer, reported manually tested by the project owner. |
 
-No release date, download URL, signature, or publication status is claimed here.
+No release date or code-signing status is claimed here.

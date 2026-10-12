@@ -2,7 +2,7 @@
 
 PDFForge is a native Windows desktop application for common PDF tasks. It is built with Python and PySide6 and processes documents locally on the computer where it runs. PDFForge is not a web application.
 
-Version **1.0.0 is proposed and not published**. The application and portable archive described below exist locally; release downloads will only be available after publication on GitHub.
+Version **1.0.0** is prepared as PDFForge's initial public release. Windows downloads are provided on the project's GitHub Releases page.
 
 ## Features
 
@@ -93,11 +93,11 @@ The latest source-tree run recorded for this preparation passed **126 tests**. S
 
 ## Windows release
 
-The proposed GitHub release version is **v1.0.0**. It has not been published, so there is no release download URL yet. The local tested portable archive is `%USERPROFILE%\PDFForge-Windows-x64.zip` (about 74.5 MB). The packaged app is `%USERPROFILE%\PDFForge_Release\PDFForge\PDFForge.exe` with runtime files in the adjacent `_internal` directory. A setup installer has now been built locally at `%USERPROFILE%\PDFForge_Release\PDFForge-Setup-v1.0.0.exe`; it still needs install, launch, and uninstall testing before distribution.
+The v1.0.0 Windows assets are the portable archive `%USERPROFILE%\PDFForge-Windows-x64.zip` (about 74.5 MB) and the setup installer `%USERPROFILE%\PDFForge_Release\PDFForge-Setup-v1.0.0.exe` (about 53.4 MB). The packaged app is `%USERPROFILE%\PDFForge_Release\PDFForge\PDFForge.exe` with runtime files in the adjacent `_internal` directory. The project owner reports the installer was manually tested successfully. See the project's [GitHub Releases page](https://github.com/myself-rajarajan/PDFforge/releases) for the downloads.
 
 Project source: [github.com/myself-rajarajan/PDFforge](https://github.com/myself-rajarajan/PDFforge). Check the [GitHub Releases page](https://github.com/myself-rajarajan/PDFforge/releases) for downloads after the release is published.
 
-When the portable ZIP is made available, download and extract it, then run `PDFForge.exe`. Keep `_internal` beside the executable; moving or copying the executable alone will not work. The archive was extracted and manually tested according to the project owner's supplied status. The installer is built locally but is not yet verified by installation/uninstallation and is not ready to list as a download.
+For the portable option, download and extract the ZIP, then run `PDFForge.exe`. Keep `_internal` beside the executable; moving or copying the executable alone will not work. The archive was extracted and manually tested according to the project owner's report. Alternatively, download and run the setup installer; the project owner reports that its manual test succeeded.
 
 ## Privacy and local processing
 
@@ -109,7 +109,7 @@ PDF and image operations run on the local computer using the installed PDF and i
 - Unlocking requires a valid supplied password and a supported encryption method. PDFForge does not crack or bypass passwords.
 - Some operations may not provide progress or cancellation for very large files; see the feature notes in [PROGRESS.md](PROGRESS.md).
 - Google Sans is not bundled. Actual rendering depends on local availability; the app falls back to system fonts.
-- The conventional installer compiles, but its installation, application launch, desktop shortcut, and uninstallation have not yet been manually verified.
+- The project owner reports successful manual testing of the Windows setup installer. The installer is unsigned; Windows SmartScreen behavior may vary by device.
 
 ## Documentation
 
@@ -122,6 +122,6 @@ PDF and image operations run on the local computer using the installed PDF and i
 
 - **Phases 1–5:** Implemented; the nine listed PDF operation tools are covered by automated tests.
 - **Phase 6:** Reliability regression coverage added. The latest source suite passed 126 tests; manual review details are in [PROGRESS.md](PROGRESS.md).
-- **Proposed release:** v1.0.0 documentation is prepared. The portable ZIP is reported manually tested by the project owner. The installer is built locally, but install testing and GitHub publication remain pending.
+- **Release:** v1.0.0 assets are prepared. The portable ZIP and setup installer are reported manually tested by the project owner; publication status is tracked in [PROGRESS.md](PROGRESS.md).
 
 See [PROGRESS.md](PROGRESS.md) for the chronological development log.

@@ -10,7 +10,7 @@
 - **Automated source tests**: `.venv\Scripts\python.exe -m pytest -q` — 126 passed in 13.21 seconds. In this managed environment, `TEMP` and `TMP` were set to a workspace-local temporary directory so Windows file-install operations could complete.
 - **Packaged app manual checks**: The project owner reports launching the packaged app and checking all nine listed PDF operation tools, including each compression preset. This is owner-reported verification, not a new manual run during release preparation.
 - **Portable archive**: The owner reports extracting the ZIP into a separate folder and testing it. During this preparation, the archive was inspected without extraction: it contains `PDFForge.exe` and `_internal/` at its root, has 228 entries, and is 74,530,331 bytes. The packaged folder also contains the executable alongside `_internal/`.
-- **Installer**: `installer/PDFForge.iss` has been prepared. Inno Setup was not found in the current environment; the script was not compiled and installation/uninstallation have not been tested.
+- **Installer**: `installer/PDFForge.iss` compiled successfully with Inno Setup 7.1.0 into the x64 setup executable. The project owner reports that manual testing succeeded.
 - **Publication**: Pending. No commit, push, tag, GitHub release, or upload was made.
 
 ## Phase 1 Checklist
@@ -211,4 +211,9 @@
 - **Compiler discovery**: Inno Setup 7.1.0 was installed per-user at `%LOCALAPPDATA%\Programs\Inno Setup 7\ISCC.exe`. The initial lookup failed because this managed execution shell maps `LOCALAPPDATA` to a sandbox location; the compiler was then located under the user's actual profile path.
 - **Build**: Compiled `installer/PDFForge.iss` against the existing `%USERPROFILE%\PDFForge_Release\PDFForge` one-folder app. The first compile warned that the old `x64` architecture identifier is deprecated, so the script was updated to `SetupArchitecture=x64` and rebuilt. Final Inno Setup 7.1.0 compile succeeded without that warning and produced `%USERPROFILE%\PDFForge_Release\PDFForge-Setup-v1.0.0.exe` (53,418,283 bytes).
 - **Safety**: The portable ZIP and PyInstaller folder were not modified. The setup output was written as a separate file beside the existing release folder.
-- **Pending**: The installer has not been installed or manually tested. Verify Start Menu launch, run a PDF operation, exercise the optional desktop shortcut, uninstall, and confirm the installed app and shortcuts are removed before treating the installer as a distributable asset.
+- **At the time of this build entry**: Manual verification had not yet been reported. The owner later confirmed successful manual installer testing; see the release status below.
+
+## Installer Manual Verification and Release (12 October 2026)
+- **Manual verification**: The project owner confirmed the installer was manually tested successfully. This is owner-reported verification; the exact steps were not independently observed in this session.
+- **Release assets**: `PDFForge-Windows-x64.zip` (74,530,331 bytes) and `PDFForge-Setup-v1.0.0.exe` (53,418,283 bytes) are ready for GitHub Releases. The installer uses Inno Setup 7.1.0 and includes the application executable and `_internal` runtime.
+- **Publication**: In progress; record the final tag and GitHub Release URL after upload verification.
