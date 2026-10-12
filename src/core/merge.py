@@ -6,7 +6,7 @@ from pathlib import Path
 import tempfile
 
 from pypdf import PdfReader, PdfWriter
-from src.core.pdf_output import PDFOperationError, validate_pdf_output_path
+from src.core.pdf_output import PDFOperationError, install_output_file, validate_pdf_output_path
 
 
 # Keep the earlier names as aliases for existing Merge PDF callers.
@@ -56,18 +56,12 @@ def merge_pdfs(
                 ) as temporary_file:
                     temporary_path = Path(temporary_file.name)
                     writer.write(temporary_file)
-                if overwrite:
-                    os.replace(temporary_path, output)
-                else:
-                    # A same-directory hard link creates the destination atomically
-                    # and fails if another process created it during the merge.
-                    try:
-                        os.link(temporary_path, output)
-                    except FileExistsError as exc:
-                        raise MergeError(
-                            "The output file already exists. Confirm replacement to continue."
-                        ) from exc
-                    temporary_path.unlink()
+                try:
+                    install_output_file(temporary_path, output, overwrite)
+                except FileExistsError as exc:
+                    raise MergeError(
+                        "The output file already exists. Confirm replacement to continue."
+                    ) from exc
                 temporary_path = None
             except MergeError:
                 raise

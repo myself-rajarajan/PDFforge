@@ -4,12 +4,14 @@ from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal, Qt, QTimer
 from PySide6.QtWidgets import (
-    QFileDialog, QHBoxLayout, QLabel, QMessageBox, QPushButton, QSlider, QVBoxLayout, QWidget,
+    QComboBox, QFileDialog, QHBoxLayout, QLabel, QMessageBox, QPushButton, QSlider,
+    QVBoxLayout, QWidget,
 )
 
 from src.core.compress_pdf import (
-    DEFAULT_IMAGE_QUALITY, IMAGE_DPI_THRESHOLD, MAX_IMAGE_QUALITY,
-    MIN_IMAGE_QUALITY, compress_pdf, compression_result_text,
+    COMPRESSION_PRESETS, DEFAULT_IMAGE_QUALITY, IMAGE_DPI_THRESHOLD,
+    MAX_IMAGE_QUALITY, MIN_IMAGE_QUALITY, compress_pdf,
+    compression_preset_for_quality, compression_result_text,
     estimate_compressed_size, format_file_size, target_dpi_for_quality,
 )
 from src.core.pdf_output import PDFOperationError, validate_pdf_output_path
@@ -22,21 +24,29 @@ class CompressPdfWorker(QThread):
     succeeded = Signal(str, int, int, str)
     failed = Signal(str)
 
-    def __init__(self, source: str, output: str, quality: int, overwrite: bool) -> None:
+    def __init__(
+        self, source: str, output: str, quality: int, preset: str, overwrite: bool,
+    ) -> None:
         super().__init__()
         self.source = source
         self.output = output
         self.quality = quality
+        self.preset = preset
         self.overwrite = overwrite
 
     def run(self) -> None:
         try:
             original_size = Path(self.source).stat().st_size
             saved = compress_pdf(
-                self.source, self.output, quality=self.quality, overwrite=self.overwrite,
+                self.source, self.output, quality=self.quality,
+                preset=self.preset if self.preset in COMPRESSION_PRESETS else None,
+                overwrite=self.overwrite,
             )
             output_size = saved.stat().st_size
-            summary = compression_result_text(original_size, output_size)
+            summary = (
+                f"Preset: {self.preset}\n"
+                f"{compression_result_text(original_size, output_size)}"
+            )
             self.succeeded.emit(str(saved), original_size, output_size, summary)
         except PDFOperationError as exc:
             self.failed.emit(str(exc))
@@ -88,6 +98,14 @@ class CompressPdfPage(QWidget):
         self.quality_value_label = QLabel()
         self.quality_value_label.setAccessibleName("Selected image compression quality")
         layout.addWidget(self.quality_value_label)
+        self.preset_combo = QComboBox()
+        self.preset_combo.addItems((*COMPRESSION_PRESETS, "Custom"))
+        self.preset_combo.setAccessibleName("PDF compression preset")
+        layout.addWidget(self.preset_combo)
+        self.preset_description = QLabel()
+        self.preset_description.setWordWrap(True)
+        self.preset_description.setStyleSheet(f"color: {Theme.TEXT_SECONDARY}; font-size: 13px;")
+        layout.addWidget(self.preset_description)
         self.quality_slider = QSlider(Qt.Orientation.Horizontal)
         self.quality_slider.setRange(MIN_IMAGE_QUALITY, MAX_IMAGE_QUALITY)
         self.quality_slider.setValue(DEFAULT_IMAGE_QUALITY)
@@ -96,6 +114,7 @@ class CompressPdfPage(QWidget):
         self.quality_slider.setAccessibleName("Image compression quality")
         self.quality_slider.valueChanged.connect(self._quality_changed)
         self.quality_slider.valueChanged.connect(self._schedule_size_estimate)
+        self.preset_combo.currentIndexChanged.connect(self._preset_changed)
         layout.addWidget(self.quality_slider)
         quality_legend = QHBoxLayout()
         quality_legend.addWidget(QLabel("Smaller size • lower image quality"))
@@ -157,9 +176,26 @@ class CompressPdfPage(QWidget):
 
     def _quality_changed(self, quality: int) -> None:
         target_dpi = target_dpi_for_quality(quality)
+        profile = compression_preset_for_quality(quality)
+        preset_name = profile if profile in COMPRESSION_PRESETS else "Custom"
+        if self.preset_combo.currentText() != preset_name:
+            self.preset_combo.blockSignals(True)
+            self.preset_combo.setCurrentText(preset_name)
+            self.preset_combo.blockSignals(False)
+        self.preset_description.setText(
+            COMPRESSION_PRESETS[preset_name].description if preset_name in COMPRESSION_PRESETS
+            else "Custom quality. High-resolution raster images may be recompressed; searchable text and vector content are retained."
+        )
         self.quality_value_label.setText(
             f"Image quality: {quality}% • images above {IMAGE_DPI_THRESHOLD} DPI target {target_dpi} DPI"
         )
+
+    def _preset_changed(self, _index: int) -> None:
+        preset = self.preset_combo.currentText()
+        settings = COMPRESSION_PRESETS.get(preset)
+        if settings is not None:
+            self.quality_slider.setValue(settings.quality)
+            self._quality_changed(settings.quality)
 
     def _schedule_size_estimate(self, _quality: int) -> None:
         if self.input_path is None:
@@ -177,7 +213,8 @@ class CompressPdfPage(QWidget):
         source = self.input_path
         quality = self.quality_slider.value()
         self.compress_button.setEnabled(False)
-        self.estimate_label.setText(f"Estimating output size at {quality}% quality…")
+        preset = compression_preset_for_quality(quality)
+        self.estimate_label.setText(f"Estimating {preset} output size at {quality}% quality…")
         self._estimate_worker = CompressionEstimateWorker(source, quality)
         self._estimate_worker.estimated.connect(self._size_estimated)
         self._estimate_worker.failed.connect(self._size_estimate_failed)
@@ -191,9 +228,10 @@ class CompressPdfPage(QWidget):
             original_size = Path(source).stat().st_size
         except OSError:
             original_size = 0
+        preset = compression_preset_for_quality(quality)
         summary = compression_result_text(original_size, size)
         self.estimate_label.setText(
-            f"Estimated output at {quality}% quality: {format_file_size(size)} — {summary} "
+            f"Estimated {preset} output at {quality}% quality: {format_file_size(size)} — {summary} "
             "(measured using a temporary compression pass)."
         )
 
@@ -269,9 +307,10 @@ class CompressPdfPage(QWidget):
         self._set_controls_enabled(False)
         self._estimate_timer.stop()
         quality = self.quality_slider.value()
+        preset = compression_preset_for_quality(quality)
         self.compress_button.setText("Compressing PDF…")
         self.result_label.setText("Optimizing the PDF locally…")
-        self._worker = CompressPdfWorker(self.input_path, str(output), quality, overwrite)
+        self._worker = CompressPdfWorker(self.input_path, str(output), quality, preset, overwrite)
         self._worker.succeeded.connect(self._compression_succeeded)
         self._worker.failed.connect(self._compression_failed)
         self._worker.finished.connect(self._worker_finished)

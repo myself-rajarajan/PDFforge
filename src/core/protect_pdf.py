@@ -8,7 +8,7 @@ import pymupdf
 from pypdf import PdfReader, PdfWriter
 from pypdf.errors import DependencyError
 
-from src.core.pdf_output import PDFOperationError, validate_pdf_output_path
+from src.core.pdf_output import PDFOperationError, install_output_file, validate_pdf_output_path
 
 
 def validate_passwords(password: str, confirmation: str) -> None:
@@ -79,16 +79,12 @@ def protect_pdf(
                         user_pw=password,
                     )
 
-            if overwrite:
-                os.replace(temporary_path, output)
-            else:
-                try:
-                    os.link(temporary_path, output)
-                except FileExistsError as exc:
-                    raise PDFOperationError(
-                        "The output file already exists. Confirm replacement to continue."
-                    ) from exc
-                temporary_path.unlink()
+            try:
+                install_output_file(temporary_path, output, overwrite)
+            except FileExistsError as exc:
+                raise PDFOperationError(
+                    "The output file already exists. Confirm replacement to continue."
+                ) from exc
             temporary_path = None
         except PDFOperationError:
             raise

@@ -8,7 +8,8 @@ from pypdf import PdfReader
 from PIL import Image
 
 from src.core.compress_pdf import (
-    compress_pdf, compression_result_text, compression_savings_percent,
+    COMPRESSION_PRESETS, compress_pdf, compression_preset_for_quality,
+    compression_preset_settings, compression_result_text, compression_savings_percent,
     estimate_compressed_size,
     target_dpi_for_quality,
 )
@@ -41,7 +42,7 @@ def test_compression_produces_valid_pdf_with_pages_and_text_in_order(tmp_path):
     assert output.stat().st_size > 0
 
 
-def test_compression_handles_high_resolution_images_without_size_assumption(tmp_path):
+def test_compression_handles_high_resolution_images_without_size_assumption(tmp_path, monkeypatch):
     source = tmp_path / "image-source.pdf"
     output = tmp_path / "image-compressed.pdf"
     image = Image.effect_noise((1200, 1600), 90).convert("RGB")
@@ -56,13 +57,48 @@ def test_compression_handles_high_resolution_images_without_size_assumption(tmp_
     document.save(source)
     document.close()
 
-    compress_pdf(source, output, quality=20)
+    rewrite_images = fitz.Document.rewrite_images
+    rewrite_settings = {}
+
+    def record_rewrite_settings(document, **settings):
+        rewrite_settings.update(settings)
+        return rewrite_images(document, **settings)
+
+    monkeypatch.setattr(fitz.Document, "rewrite_images", record_rewrite_settings)
+    compress_pdf(source, output, preset="Maximum")
 
     with fitz.open(output) as result:
         assert len(result) == 1
         assert "image document" in result[0].get_text()
         assert len(result[0].get_images()) == 1
     assert output.stat().st_size > 0
+    assert rewrite_settings["dpi_threshold"] == 200
+    assert rewrite_settings["dpi_target"] == 116
+    assert rewrite_settings["quality"] == 25
+    assert rewrite_settings["lossy"] is True
+    assert rewrite_settings["lossless"] is False
+    assert rewrite_settings["bitonal"] is False
+
+
+def test_larger_rewrite_keeps_original_bytes_as_output(tmp_path, monkeypatch):
+    source = tmp_path / "small.pdf"
+    output = tmp_path / "small-compressed.pdf"
+    make_pdf(source, ("retain original if optimization grows it",))
+    original = source.read_bytes()
+    save = fitz.Document.save
+
+    def save_with_growth(document, filename, *args, **kwargs):
+        save(document, filename, *args, **kwargs)
+        with open(filename, "ab") as stream:
+            stream.write(b"padding" * 2048)
+
+    monkeypatch.setattr(fitz.Document, "save", save_with_growth)
+    compress_pdf(source, output)
+
+    assert output.read_bytes() == original
+    with fitz.open(output) as result:
+        assert len(result) == 1
+        assert "retain original" in result[0].get_text()
 
 
 def test_estimated_size_measures_temporary_compression_pass(tmp_path):
@@ -140,3 +176,19 @@ def test_quality_setting_controls_target_resolution_and_validation():
     assert target_dpi_for_quality(95) == 163
     with pytest.raises(PDFOperationError, match="Image quality must be between"):
         target_dpi_for_quality(0)
+
+
+def test_named_presets_use_verified_quality_and_resolution_settings():
+    assert compression_preset_settings("Recommended").quality == 75
+    assert compression_preset_settings("Recommended").target_dpi == target_dpi_for_quality(75)
+    assert compression_preset_settings("Strong").quality == 50
+    assert compression_preset_settings("Strong").target_dpi == target_dpi_for_quality(50)
+    assert compression_preset_settings("Maximum").quality == 25
+    assert compression_preset_settings("Maximum").target_dpi == target_dpi_for_quality(25)
+    assert compression_preset_for_quality(75) == "Recommended"
+    assert compression_preset_for_quality(50) == "Strong"
+    assert compression_preset_for_quality(25) == "Maximum"
+    assert compression_preset_for_quality(47) == "Custom (47% quality)"
+    assert list(COMPRESSION_PRESETS) == ["Recommended", "Strong", "Maximum"]
+    with pytest.raises(PDFOperationError, match="Choose Recommended"):
+        compression_preset_settings("unrecognized")

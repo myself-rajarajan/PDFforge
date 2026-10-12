@@ -7,7 +7,7 @@ import tempfile
 
 from pypdf import PdfReader, PdfWriter
 
-from src.core.pdf_output import PDFOperationError, validate_pdf_output_path
+from src.core.pdf_output import PDFOperationError, install_output_file, validate_pdf_output_path
 
 
 def read_pdf_page_count(input_path: str | os.PathLike[str]) -> int:
@@ -144,16 +144,12 @@ def remove_pdf_pages(
                 raise PDFOperationError(f"Could not create the output PDF: {exc}") from exc
 
         try:
-            if overwrite:
-                os.replace(temporary_path, output)
-            else:
-                try:
-                    os.link(temporary_path, output)
-                except FileExistsError as exc:
-                    raise PDFOperationError(
-                        "The output file already exists. Confirm replacement to continue."
-                    ) from exc
-                temporary_path.unlink()
+            try:
+                install_output_file(temporary_path, output, overwrite)
+            except FileExistsError as exc:
+                raise PDFOperationError(
+                    "The output file already exists. Confirm replacement to continue."
+                ) from exc
             temporary_path = None
         except PDFOperationError:
             raise

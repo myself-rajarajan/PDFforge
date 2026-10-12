@@ -88,6 +88,7 @@ def test_navigation_and_tool_pages(qapp):
 
 def test_navigation_repaints_without_nested_graphics_effects(qapp):
     from PySide6.QtCore import qInstallMessageHandler
+    from PySide6.QtWidgets import QWidget
     from src.app import PDFForgeApp
 
     qt_messages = []
@@ -102,7 +103,7 @@ def test_navigation_repaints_without_nested_graphics_effects(qapp):
             qapp.processEvents()
         window.resize(1100, 720)
         qapp.processEvents()
-        assert all(card.graphicsEffect() is None for card in window.dashboard._all_cards)
+        assert all(widget.graphicsEffect() is None for widget in window.dashboard.findChildren(QWidget))
         assert all(page.graphicsEffect() is None for page in window._pages.values())
         assert not any("Painter not active" in message for message in qt_messages)
         assert not any("only be painted by one painter" in message for message in qt_messages)
@@ -131,6 +132,26 @@ def test_compress_page_quality_slider_updates_resolution_description(qapp):
     assert "target 150 DPI" in page.quality_value_label.text()
     page.quality_slider.setValue(20)
     assert "target 113 DPI" in page.quality_value_label.text()
+    assert page.preset_combo.currentText() == "Custom"
+    page.preset_combo.setCurrentText("Strong")
+    assert page.quality_slider.value() == 50
+    assert "sharing and email" in page.preset_description.text()
+
+
+def test_dashboard_introduction_and_workflow_are_available(qapp):
+    from PySide6.QtWidgets import QLabel
+    from src.ui.pages.dashboard import DashboardPage
+
+    dashboard = DashboardPage()
+    labels = [label.text() for label in dashboard.findChildren(QLabel)]
+    assert "PDFForge" in labels
+    assert "Everything You Need to Manage PDFs" in labels
+    assert any("processed locally" in label for label in labels)
+    assert any("Images to PDF" in label and "Compress PDFs" in label for label in labels)
+    assert "How it works" in labels
+    assert all(any(f"{number}." in label for label in labels) for number in range(1, 5))
+    assert "QUICK ACCESS" not in labels
+    assert "ALL TOOLS" not in labels
 
 def test_reorder_thumbnail_drop_tracks_displayed_order(qapp):
     from src.ui.pages.reorder_pages import ReorderPagesPage
@@ -341,15 +362,12 @@ def test_window_layouts_adapt_at_compact_medium_and_wide_sizes(qapp):
 
     window = PDFForgeApp()
     window.show()
-    for width, sidebar_width, dashboard_columns in (
-        (860, 170, 2), (1100, 209, 3), (1500, 240, 4),
-    ):
+    for width, sidebar_width in ((860, 170), (1100, 209), (1500, 240)):
         window.resize(width, 720)
         qapp.processEvents()
         assert window.sidebar.width() == sidebar_width
-        assert window.dashboard.quick_grid.getItemPosition(dashboard_columns - 1)[0] == 0
-        if dashboard_columns < len(window.dashboard._quick_cards):
-            assert window.dashboard.quick_grid.getItemPosition(dashboard_columns)[0] == 1
+        assert window.stack.currentWidget() is window.dashboard
+        assert window.dashboard.width() > 0
     assert window.dashboard.layout().contentsMargins().left() == 32
     window.navigate("tool_remove")
     assert window.stack.currentWidget() is window.remove_pages_page

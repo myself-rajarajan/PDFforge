@@ -8,7 +8,7 @@ import tempfile
 
 import pymupdf as fitz
 
-from src.core.pdf_output import PDFOperationError, validate_pdf_output_path
+from src.core.pdf_output import PDFOperationError, install_output_file, validate_pdf_output_path
 
 
 PAGE_NUMBER_POSITIONS = {
@@ -121,16 +121,12 @@ def add_page_numbers(
             raise PDFOperationError(f"Could not create the numbered PDF: {exc}") from exc
 
         try:
-            if overwrite:
-                os.replace(temporary_path, output)
-            else:
-                try:
-                    os.link(temporary_path, output)
-                except FileExistsError as exc:
-                    raise PDFOperationError(
-                        "The output file already exists. Confirm replacement to continue."
-                    ) from exc
-                temporary_path.unlink()
+            try:
+                install_output_file(temporary_path, output, overwrite)
+            except FileExistsError as exc:
+                raise PDFOperationError(
+                    "The output file already exists. Confirm replacement to continue."
+                ) from exc
             temporary_path = None
         except PDFOperationError:
             raise

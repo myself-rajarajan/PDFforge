@@ -65,3 +65,7 @@ venv.bak/
 
 # PDFForge specific
 tests/data/output/
+
+
+/release_build/
+/temp_build/

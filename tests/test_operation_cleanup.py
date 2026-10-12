@@ -57,6 +57,7 @@ def test_failed_atomic_install_removes_temporary_pdf(tmp_path, monkeypatch, oper
         raise OSError("simulated destination installation failure")
 
     monkeypatch.setattr(os, "link", fail_install)
+    monkeypatch.setattr(os, "rename", fail_install)
     with pytest.raises(PDFOperationError):
         calls[operation]()
 

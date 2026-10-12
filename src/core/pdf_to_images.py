@@ -11,7 +11,7 @@ from typing import Callable
 import pymupdf as fitz
 from PIL import Image
 
-from src.core.pdf_output import PDFOperationError
+from src.core.pdf_output import PDFOperationError, install_output_file
 
 SUPPORTED_FORMATS = {"PNG": ".png", "JPEG": ".jpg", "TIFF": ".tiff", "WEBP": ".webp"}
 DEFAULT_DPI = 150
@@ -130,7 +130,7 @@ def pdf_to_images(
                         os.replace(staged_path, path)
                     else:
                         try:
-                            os.link(staged_path, path)
+                            install_output_file(staged_path, path, overwrite=False)
                         except FileExistsError as exc:
                             raise PDFOperationError(
                                 f"Output image already exists: {path.name}. Choose another folder or confirm replacement."

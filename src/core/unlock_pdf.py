@@ -8,7 +8,7 @@ import pymupdf
 from pypdf import PdfReader, PdfWriter
 from pypdf.errors import DependencyError
 
-from src.core.pdf_output import PDFOperationError, validate_pdf_output_path
+from src.core.pdf_output import PDFOperationError, install_output_file, validate_pdf_output_path
 
 
 def _write_unencrypted_with_pymupdf(source: Path, temporary_path: Path, password: str) -> None:
@@ -29,16 +29,12 @@ def _write_unencrypted_with_pymupdf(source: Path, temporary_path: Path, password
 
 
 def _install_output(temporary_path: Path, output: Path, overwrite: bool) -> None:
-    if overwrite:
-        os.replace(temporary_path, output)
-        return
     try:
-        os.link(temporary_path, output)
+        install_output_file(temporary_path, output, overwrite)
     except FileExistsError as exc:
         raise PDFOperationError(
             "The output file already exists. Confirm replacement to continue."
         ) from exc
-    temporary_path.unlink()
 
 
 def unlock_pdf(

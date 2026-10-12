@@ -8,6 +8,19 @@ class PDFOperationError(Exception):
     """An expected, user-correctable error in a local PDF operation."""
 
 
+def install_output_file(temporary_path: Path, output_path: Path, overwrite: bool) -> None:
+    """Atomically install a same-folder temporary file without accidental clobbering."""
+    if overwrite:
+        os.replace(temporary_path, output_path)
+    elif os.name == "nt":
+        # Windows rename is atomic on the same volume and fails if the destination exists.
+        os.rename(temporary_path, output_path)
+    else:
+        # A POSIX hard link is an atomic create-if-absent operation.
+        os.link(temporary_path, output_path)
+        temporary_path.unlink()
+
+
 def _same_path(first: Path, second: Path) -> bool:
     """Compare paths including case normalization and existing file identities."""
     try:

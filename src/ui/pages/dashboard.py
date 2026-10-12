@@ -1,13 +1,11 @@
-"""Responsive home dashboard with keyboard-accessible tool cards."""
+"""Home dashboard introducing PDFForge and guiding users into its tools."""
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QGridLayout, QLabel, QScrollArea, QVBoxLayout, QWidget, QPushButton,
+    QHBoxLayout, QLabel, QScrollArea, QVBoxLayout, QWidget, QPushButton,
 )
 
 from src.ui.theme import Theme
-from src.ui.tool_card import ToolCard
-from src.utils.constants import TOOLS
 
 
 class DashboardPage(QWidget):
@@ -18,8 +16,6 @@ class DashboardPage(QWidget):
 
     def __init__(self):
         super().__init__()
-        self._quick_cards: list[ToolCard] = []
-        self._all_cards: list[ToolCard] = []
         layout = QVBoxLayout(self)
         layout.setContentsMargins(32, 30, 32, 30)
         layout.setSpacing(22)
@@ -33,74 +29,63 @@ class DashboardPage(QWidget):
 
         featured_panel = QWidget()
         featured_panel.setObjectName("SurfaceCard")
-        featured_panel.setMinimumHeight(198)
+        featured_panel.setMinimumHeight(244)
         featured_layout = QVBoxLayout(featured_panel)
         featured_layout.setContentsMargins(26, 24, 26, 22)
-        featured_layout.setSpacing(10)
-        featured_title = QLabel("Your PDF Workspace")
-        featured_title.setStyleSheet("font-size: 30px; font-weight: 700;")
-        featured_sub = QLabel("Everything you need to manage PDFs, right on your Windows PC.")
+        featured_layout.setSpacing(8)
+        project_name = QLabel("PDFForge")
+        project_name.setStyleSheet(
+            f"color: {Theme.ACCENT_BLUE}; font-size: 13px; font-weight: 700;"
+        )
+        featured_title = QLabel("Everything You Need to Manage PDFs")
+        featured_title.setWordWrap(True)
+        featured_title.setStyleSheet("font-size: 28px; font-weight: 700;")
+        featured_sub = QLabel(
+            "A desktop utility to merge documents, organize pages, convert files, protect PDFs "
+            "with passwords, and reduce file sizes. Your files are processed locally on this "
+            "computer; no online PDF service is required."
+        )
         featured_sub.setWordWrap(True)
         featured_sub.setStyleSheet(f"font-size: 15px; color: {Theme.TEXT_SECONDARY};")
+        capabilities = QLabel(
+            "Merge PDFs  •  Remove and reorder pages  •  Add page numbers  •  Images to PDF "
+            "and PDF pages to images  •  Protect and unlock PDFs  •  Compress PDFs"
+        )
+        capabilities.setObjectName("DashboardCapabilities")
+        capabilities.setWordWrap(True)
+        capabilities.setStyleSheet(f"font-size: 13px; color: {Theme.TEXT_SECONDARY};")
         explore_btn = QPushButton("Explore Tools")
         explore_btn.setMaximumWidth(170)
         explore_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         explore_btn.clicked.connect(self.explore_clicked.emit)
+        featured_layout.addWidget(project_name)
         featured_layout.addWidget(featured_title)
         featured_layout.addWidget(featured_sub)
+        featured_layout.addWidget(capabilities)
         featured_layout.addStretch()
         featured_layout.addWidget(explore_btn, alignment=Qt.AlignmentFlag.AlignLeft)
         scroll_layout.addWidget(featured_panel)
 
-        scroll_layout.addWidget(self._section_label("QUICK ACCESS"))
-        self.quick_grid = QGridLayout()
-        self.quick_grid.setSpacing(14)
-        for tool in (item for item in TOOLS if item["quick_access"]):
-            card = self._create_card(tool)
-            self._quick_cards.append(card)
-        scroll_layout.addLayout(self.quick_grid)
+        workflow_panel = QWidget()
+        workflow_panel.setObjectName("SurfaceCard")
+        workflow_layout = QVBoxLayout(workflow_panel)
+        workflow_layout.setContentsMargins(20, 16, 20, 16)
+        workflow_layout.setSpacing(10)
+        workflow_heading = QLabel("How it works")
+        workflow_heading.setStyleSheet("font-size: 17px; font-weight: 650;")
+        workflow_layout.addWidget(workflow_heading)
+        workflow_steps = QHBoxLayout()
+        workflow_steps.setSpacing(12)
+        for number, step in enumerate((
+            "Select a PDF or image", "Choose an operation", "Set available options", "Save your file",
+        ), start=1):
+            step_label = QLabel(f"{number}.  {step}")
+            step_label.setWordWrap(True)
+            step_label.setStyleSheet(f"color: {Theme.TEXT_SECONDARY}; font-size: 13px;")
+            workflow_steps.addWidget(step_label, 1)
+        workflow_layout.addLayout(workflow_steps)
+        scroll_layout.addWidget(workflow_panel)
 
-        scroll_layout.addWidget(self._section_label("ALL TOOLS"))
-        self.all_grid = QGridLayout()
-        self.all_grid.setSpacing(14)
-        for tool in TOOLS:
-            self._all_cards.append(self._create_card(tool))
-        scroll_layout.addLayout(self.all_grid)
         scroll_layout.addStretch()
-        self._reflow_cards()
         scroll.setWidget(scroll_content)
         layout.addWidget(scroll)
-
-    @staticmethod
-    def _section_label(text: str) -> QLabel:
-        label = QLabel(text)
-        label.setStyleSheet(
-            f"color: {Theme.TEXT_SECONDARY}; font-size: 11px; font-weight: 700; letter-spacing: 1px;"
-        )
-        return label
-
-    def _create_card(self, tool: dict) -> ToolCard:
-        card = ToolCard(tool["title"], tool["description"], tool["key"], tool["is_implemented"])
-        card.clicked.connect(self.tool_clicked.emit)
-        return card
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self._reflow_cards()
-
-    def _reflow_cards(self) -> None:
-        """Reflow cards between compact and wide layouts as the page is resized."""
-        if not hasattr(self, "quick_grid"):
-            return
-        available = max(300, self.width() - 62)
-        for cards, grid, max_columns in (
-            (self._quick_cards, self.quick_grid, 4),
-            (self._all_cards, self.all_grid, 3),
-        ):
-            columns = max(1, min(max_columns, (available + 14) // 250))
-            while grid.count():
-                grid.takeAt(0)
-            for index, card in enumerate(cards):
-                grid.addWidget(card, index // columns, index % columns)
-            for column in range(max_columns):
-                grid.setColumnStretch(column, int(column < columns))
