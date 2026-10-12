@@ -215,5 +215,5 @@
 
 ## Installer Manual Verification and Release (12 October 2026)
 - **Manual verification**: The project owner confirmed the installer was manually tested successfully. This is owner-reported verification; the exact steps were not independently observed in this session.
-- **Release assets**: `PDFForge-Windows-x64.zip` (74,530,331 bytes) and `PDFForge-Setup-v1.0.0.exe` (53,418,283 bytes) are ready for GitHub Releases. The installer uses Inno Setup 7.1.0 and includes the application executable and `_internal` runtime.
-- **Publication**: In progress; record the final tag and GitHub Release URL after upload verification.
+- **Release assets**: `PDFForge-Windows-x64.zip` (74,530,331 bytes) and `PDFForge-Setup-v1.0.0.exe` (53,418,283 bytes) are published. The installer uses Inno Setup 7.1.0 and includes the application executable and `_internal` runtime.
+- **Publication**: Published as GitHub Release [v1.0.0](https://github.com/myself-rajarajan/PDFforge/releases/tag/v1.0.0). Verified the release is public and includes both assets at their expected sizes.

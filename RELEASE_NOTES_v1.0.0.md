@@ -22,11 +22,11 @@ PDFForge is a native desktop application. PDF and image processing happens local
 
 ### Portable archive
 
-The project owner reports that the portable archive was extracted and tested. Download `PDFForge-Windows-x64.zip`, extract it, and run `PDFForge.exe`. Keep the `_internal` folder next to the executable; the executable depends on those runtime files.
+The project owner reports that the portable archive was extracted and tested. Download the [PDFForge-Windows-x64.zip portable archive](https://github.com/myself-rajarajan/PDFforge/releases/download/v1.0.0/PDFForge-Windows-x64.zip), extract it, and run `PDFForge.exe`. Keep the `_internal` folder next to the executable; the executable depends on those runtime files.
 
 ### Setup installer
 
-Download `PDFForge-Setup-v1.0.0.exe` to install PDFForge per-user. The project owner reports that the installer was manually tested successfully.
+Download the [PDFForge-Setup-v1.0.0.exe installer](https://github.com/myself-rajarajan/PDFforge/releases/download/v1.0.0/PDFForge-Setup-v1.0.0.exe) to install PDFForge per-user. The project owner reports that the installer was manually tested successfully.
 
 ## Limitations
 
@@ -35,11 +35,11 @@ Download `PDFForge-Setup-v1.0.0.exe` to install PDFForge per-user. The project o
 - Google Sans is not bundled because redistribution permission has not been verified; system font fallbacks are used when unavailable.
 - Some long-running operations do not expose cancellation or detailed progress.
 
-## Expected release assets
+## Published release assets
 
 | Asset | Status |
 | --- | --- |
-| `PDFForge-Windows-x64.zip` | Portable Windows x64 application archive. |
-| `PDFForge-Setup-v1.0.0.exe` | Per-user Windows x64 installer, reported manually tested by the project owner. |
+| [PDFForge-Windows-x64.zip](https://github.com/myself-rajarajan/PDFforge/releases/download/v1.0.0/PDFForge-Windows-x64.zip) | Portable Windows x64 application archive. |
+| [PDFForge-Setup-v1.0.0.exe](https://github.com/myself-rajarajan/PDFforge/releases/download/v1.0.0/PDFForge-Setup-v1.0.0.exe) | Per-user Windows x64 installer, reported manually tested by the project owner. |
 
 No release date or code-signing status is claimed here.
